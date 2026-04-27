@@ -12,6 +12,8 @@ class AppFormField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final bool isPassword;
+  final Function(String)? onChanged;
+  final String? errorText;
 
   AppFormField({
     super.key,
@@ -20,6 +22,8 @@ class AppFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.validator,
     this.isPassword = false,
+    this.onChanged,
+    this.errorText
   });
 
   final ValueNotifier<bool> _obscure = ValueNotifier(true);
@@ -34,6 +38,7 @@ class AppFormField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: isPassword ? obscure : false,
           validator: validator,
+          onChanged: onChanged,
           cursorColor: AppColors.Primary,
           style: TextStyle(
             color: AppColors.Primary,
@@ -41,6 +46,7 @@ class AppFormField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             labelText: label,
+            errorText: errorText,
             labelStyle: AppTextStyle.txtStyle.copyWith(
               color: AppColors.Txt,
             ),

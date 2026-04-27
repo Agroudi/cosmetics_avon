@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../data/repo/auth_repo.dart';
@@ -11,17 +12,17 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this.repo) : super(AuthInitial());
 
   Future login({
-    required String phone,
-    required String password,
     required String countryCode,
+    required String phoneNumber,
+    required String password
   }) async {
     emit(AuthLoading());
 
     try {
       final data = await repo.login(
-        phone: phone,
-        password: password,
         countryCode: countryCode,
+        phoneNumber: phoneNumber,
+        password: password
       );
 
       if (data != null && data['status'] == true) {
@@ -80,18 +81,54 @@ class AuthCubit extends Cubit<AuthState> {
           password: password
       );
 
-      if (data['status'] == true) {
+      debugPrint("REGISTER RESPONSE DATA: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      // Flexible success check
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") || 
+                        messageValue.contains("created");
+
+      if (isSuccess) {
         emit(RegisterSuccess());
       } else {
-        emit(RegisterError(data['message'] ?? "Register failed"));
+        if (messageValue.contains("email") && (messageValue.contains("already") || messageValue.contains("exist"))) {
+          emit(RegisterError("Email already registered"));
+        } else if (messageValue.contains("username") && (messageValue.contains("already") || messageValue.contains("taken"))) {
+          emit(RegisterError("Username already taken"));
+        } else if (messageValue.contains("phone") && (messageValue.contains("already") || messageValue.contains("used") || messageValue.contains("exist"))) {
+          emit(RegisterError("Phone already used"));
+        } else if (password.length < 8) {
+          emit(RegisterError("Weak password"));
+        } else {
+          emit(RegisterError(messageValue.isEmpty ? "Something went wrong" : (data['message'] ?? "Unknown error")));
+        }
       }
 
     } on DioException catch (e) {
+      debugPrint("STATUS CODE: ${e.response?.statusCode}");
+      debugPrint("DATA: ${e.response?.data}");
+      debugPrint("MESSAGE: ${e.message}");
+
       final statusCode = e.response?.statusCode;
 
       switch (statusCode) {
         case 400:
-          emit(RegisterError("Invalid data"));
+          final serverMessage = e.response?.data?['message'] ?? "Invalid data";
+
+          if (serverMessage.toString().toLowerCase().contains("email")) {
+            emit(RegisterError("Email already registered"));
+          } else if (serverMessage.toString().toLowerCase().contains("username")) {
+            emit(RegisterError("Username already taken"));
+          } else if (serverMessage.toString().toLowerCase().contains("phone")) {
+            emit(RegisterError("Phone already used"));
+          } else {
+            emit(RegisterError(serverMessage));
+          }
           break;
         case 401:
           emit(RegisterError("Unauthorized"));
@@ -100,7 +137,10 @@ class AuthCubit extends Cubit<AuthState> {
           emit(RegisterError("Server error"));
           break;
         default:
-          if (e.response == null) {
+          if (e.type == DioExceptionType.connectionTimeout ||
+              e.type == DioExceptionType.receiveTimeout) {
+            emit(RegisterError("Connection timeout, try again"));
+          } else if (e.type == DioExceptionType.connectionError) {
             emit(RegisterError("No internet connection"));
           } else {
             emit(RegisterError("Something went wrong"));
@@ -109,6 +149,96 @@ class AuthCubit extends Cubit<AuthState> {
 
     } catch (e) {
       emit(RegisterError("Unexpected error"));
+    }
+  }
+
+  Future forgotPassword({
+    required String countryCode,
+    required String phoneNumber,
+  }) async {
+    emit(ForgotPasswordLoading());
+
+    try {
+      final data = await repo.forgotPassword(
+        countryCode: countryCode,
+        phoneNumber: phoneNumber,
+      );
+
+      if (data['status'] == true) {
+        emit(ForgotPasswordSuccess());
+      } else {
+        emit(ForgotPasswordError(data['message'] ?? "Failed"));
+      }
+    } catch (e) {
+      emit(ForgotPasswordError("Something went wrong"));
+    }
+  }
+
+  Future verifyCode({
+    String? countryCode,
+    String? phoneNumber,
+    String? email,
+    required String otpCode,
+  }) async {
+    emit(VerifyLoading());
+
+    try {
+      final data = await repo.verifyCode(
+        countryCode: countryCode,
+        phoneNumber: phoneNumber,
+        email: email,
+        otpCode: otpCode,
+      );
+
+      if (data['status'] == true) {
+        emit(VerifySuccess());
+      } else {
+        emit(VerifyError(data['message']));
+      }
+    } catch (e) {
+      emit(VerifyError("Verification failed"));
+    }
+  }
+
+  Future resetPassword({
+    required String countryCode,
+    required String phoneNumber,
+    required String newPassword,
+    required String confirmPassword
+  }) async {
+    emit(ResetPasswordLoading());
+
+    try {
+      final data = await repo.resetPassword(
+        countryCode: countryCode,
+        phoneNumber: phoneNumber,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword
+      );
+
+      if (data['status'] == true) {
+        emit(ResetPasswordSuccess());
+      } else {
+        emit(ResetPasswordError(data['message']));
+      }
+    } catch (e) {
+      emit(ResetPasswordError("Reset failed"));
+    }
+  }
+
+  Future resendOtp({
+    String? countryCode,
+    String? phoneNumber,
+    String? email,
+  }) async {
+    try {
+      await repo.resendOtp(
+        countryCode: phoneNumber != null ? countryCode : null,
+        phoneNumber: phoneNumber,
+        email: email,
+      );
+    } catch (e) {
+      emit(VerifyError("Failed to resend"));
     }
   }
 }

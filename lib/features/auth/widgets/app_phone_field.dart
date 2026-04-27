@@ -2,19 +2,21 @@ import 'package:cosmetics_avon/gen/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-
 import '../../../core/theme/colors.dart';
 import 'app_form_field.dart';
 
 class AppPhoneField extends StatefulWidget {
   final TextEditingController controller;
   final Function(String countryCode)? onCountryChanged;
+  final String? Function(String?)? validator;
+  final Function(String)? onChanged;
 
   const AppPhoneField({
     super.key,
     required this.controller,
     this.onCountryChanged,
+    required this.validator,
+    this.onChanged
   });
 
   @override
@@ -24,7 +26,7 @@ class AppPhoneField extends StatefulWidget {
 class _AppPhoneFieldState extends State<AppPhoneField> {
   String countryCode = '+20';
 
-  final List<String> countryCodes = ['+20', '+966', '+971', '+1'];
+  final List<String> countryCodes = ['+20', '+966', '+971', '+1', '+49', '+98'];
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +57,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                 countryCode = value!;
               });
 
-              if (widget.onCountryChanged != null) {
-                widget.onCountryChanged!(countryCode);
-              }
+              widget.onCountryChanged?.call(countryCode);
             },
           ),
         ),
@@ -69,6 +69,8 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
             label: LocaleKeys.phone_label.tr(),
             controller: widget.controller,
             keyboardType: TextInputType.phone,
+            validator: widget.validator,
+            onChanged: widget.onChanged,
           ),
         ),
       ],

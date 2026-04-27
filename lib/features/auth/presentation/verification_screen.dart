@@ -2,13 +2,18 @@ import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../gen/locale_keys.g.dart';
+import '../cubit/auth_cubit.dart';
+import '../data/repo/auth_repo_impl.dart';
+import '../data/services/auth_api_services.dart';
 
 enum VerificationType {
   email,
@@ -18,13 +23,16 @@ enum VerificationType {
 class VerificationScreen extends StatefulWidget {
   final VerificationType type;
   final String value;
-  const VerificationScreen({super.key, required this.type, required this.value,});
+  final String? countryCode;
+
+  const VerificationScreen({super.key, required this.type, required this.value, required this.countryCode});
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
+  final TextEditingController otpController = TextEditingController();
 
   int seconds = 30;
 
@@ -51,7 +59,21 @@ class _VerificationScreenState extends State<VerificationScreen> {
   Widget build(BuildContext context)
 
   {
-    return Scaffold(
+    return BlocProvider(
+        create: (_) => AuthCubit(AuthRepoImpl(AuthApiService())),
+        child: BlocListener<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is VerifySuccess) {
+                Navigator.pushNamed(context, AppRoutes.createPassword);
+              }
+
+              if (state is VerifyError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              }
+            },
+      child: Scaffold(
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -99,7 +121,27 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 SizedBox(height: 76.h),
                 MaterialPinField(
                   length: 4,
-                  onCompleted: (pin) => debugPrint('PIN: $pin'),
+                  onCompleted: (pin) {
+                    if (widget.type == VerificationType.email) {
+                      context.read<AuthCubit>().verifyCode(
+                        email: widget.value,
+                        otpCode: pin,
+                      );
+                    } else {
+                      if (widget.type == VerificationType.phone) {
+                        context.read<AuthCubit>().verifyCode(
+                          countryCode: widget.countryCode,
+                          phoneNumber: widget.value,
+                          otpCode: pin,
+                        );
+                      } else {
+                        context.read<AuthCubit>().verifyCode(
+                          email: widget.value,
+                          otpCode: pin,
+                        );
+                      }
+                    }
+                  },
                   onChanged: (value) => debugPrint('Changed: $value'),
                   theme: MaterialPinTheme(
                     enableErrorShake: true,
@@ -134,14 +176,19 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     ),
 
                     TextButton(
-                      onPressed: () {
-                        if (seconds != 0) return; // 🔥 block action manually
+                        onPressed: () {
+                          if (seconds != 0) return;
 
-                        setState(() {
-                          seconds = 30;
-                        });
-                        startTimer();
-                      },
+                          context.read<AuthCubit>().resendOtp(
+                            countryCode: widget.countryCode!,
+                            phoneNumber: widget.value,
+                          );
+
+                          setState(() {
+                            seconds = 30;
+                          });
+                          startTimer();
+                        },
                       child: Text(
                         LocaleKeys.resend.tr(),
                         style: AppTextStyle.txtStyle.copyWith(
@@ -167,7 +214,22 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 ),
                 Spacer(),
                 AppButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (seconds != 0) return;
+
+                      if (widget.type == VerificationType.phone) {
+                        context.read<AuthCubit>().resendOtp(
+                          countryCode: widget.countryCode,
+                          phoneNumber: widget.value,
+                        );
+                      } else {
+                        context.read<AuthCubit>().resendOtp(
+                          email: widget.value,
+                        );
+                      }
+                      setState(() => seconds = 30);
+                      startTimer();
+                    },
                     txt: LocaleKeys.done_button.tr()
                 ),
                 Spacer()
@@ -176,6 +238,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
           )
         )
       )
+      )
+        )
     );
   }
 }

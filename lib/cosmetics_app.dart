@@ -1,11 +1,8 @@
-import 'package:cosmetics_avon/features/auth/presentation/forgot_password_screen.dart';
-import 'package:cosmetics_avon/features/auth/presentation/register_screen.dart';
-import 'package:cosmetics_avon/features/auth/presentation/verification_screen.dart';
-import 'package:cosmetics_avon/features/boarding/presentation/boarding_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'features/auth/presentation/create_password_screen.dart';
+import 'core/routing/app_router.dart';
+import 'core/routing/app_routes.dart';
 
 class CosmeticsApp extends StatelessWidget
 {
@@ -24,7 +21,8 @@ class CosmeticsApp extends StatelessWidget
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,
-          home: BoardingScreen(),
+          onGenerateRoute: AppRouter.generateRoute,
+          initialRoute: AppRoutes.login,
         )
     );
   }
