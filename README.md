@@ -23,7 +23,8 @@ flutter pub get
 Run the app:
 flutter run
 
-<h1>🏗️ Architectural Overview</h1>
+```text
+## 🏗️ Architectural Overview
 
 project_root/
 │
@@ -57,6 +58,7 @@ project_root/
 │   │   └── layout/        # Bottom Navigation Bar (OnProgress)
 │   │
 │   └── main.dart          # App entry point
+```
 
 <h1>⚙️ Features</h1>
 
