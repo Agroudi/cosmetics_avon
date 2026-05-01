@@ -23,9 +23,10 @@ flutter pub get
 Run the app:
 flutter run
 
-```text
-## 🏗️ Architectural Overview
+<h1>🏗️ Architectural Overview</h1>
 
+
+```text
 project_root/
 │
 ├── assets/
