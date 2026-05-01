@@ -25,21 +25,46 @@ class AuthCubit extends Cubit<AuthState> {
         password: password
       );
 
-      if (data != null && data['status'] == true) {
+      debugPrint("LOGIN RESPONSE: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") ||
+                        messageValue.contains("welcome") ||
+                        data['token'] != null;
+
+      if (isSuccess) {
         emit(AuthSuccess());
       } else {
         emit(AuthError(data['message'] ?? "Login failed"));
       }
 
     } on DioException catch (e) {
+      debugPrint("LOGIN ERROR: ${e.response?.data}");
       final statusCode = e.response?.statusCode;
 
       switch (statusCode) {
         case 400:
-          emit(AuthError("Invalid data"));
+          final serverData = e.response?.data;
+          String serverMessage = "Invalid data";
+          if (serverData is Map) {
+            serverMessage = serverData['message'] ?? serverData['error'] ?? "Invalid data";
+          } else if (serverData is String) {
+            serverMessage = serverData;
+          }
+          emit(AuthError(serverMessage));
           break;
         case 401:
-          emit(AuthError("Wrong phone or password"));
+          final serverData = e.response?.data;
+          String serverMessage = "Wrong phone or password";
+          if (serverData is Map) {
+            serverMessage = serverData['message'] ?? serverData['error'] ?? "Wrong phone or password";
+          }
+          emit(AuthError(serverMessage));
           break;
         case 404:
           emit(AuthError("User not found"));
@@ -118,13 +143,22 @@ class AuthCubit extends Cubit<AuthState> {
 
       switch (statusCode) {
         case 400:
-          final serverMessage = e.response?.data?['message'] ?? "Invalid data";
+          final serverData = e.response?.data;
+          String serverMessage = "Invalid data";
+          
+          if (serverData is Map) {
+            serverMessage = serverData['message'] ?? serverData['error'] ?? "Invalid data";
+          } else if (serverData is String) {
+            serverMessage = serverData;
+          }
 
-          if (serverMessage.toString().toLowerCase().contains("email")) {
+          final lowerMessage = serverMessage.toLowerCase();
+
+          if (lowerMessage.contains("email") && (lowerMessage.contains("already") || lowerMessage.contains("exist"))) {
             emit(RegisterError("Email already registered"));
-          } else if (serverMessage.toString().toLowerCase().contains("username")) {
+          } else if (lowerMessage.contains("username") && (lowerMessage.contains("already") || lowerMessage.contains("taken"))) {
             emit(RegisterError("Username already taken"));
-          } else if (serverMessage.toString().toLowerCase().contains("phone")) {
+          } else if (lowerMessage.contains("phone") && (lowerMessage.contains("already") || lowerMessage.contains("used") || lowerMessage.contains("exist"))) {
             emit(RegisterError("Phone already used"));
           } else {
             emit(RegisterError(serverMessage));
@@ -190,13 +224,35 @@ class AuthCubit extends Cubit<AuthState> {
         otpCode: otpCode,
       );
 
-      if (data['status'] == true) {
+      debugPrint("VERIFY OTP RESPONSE: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") ||
+                        messageValue.contains("verified") ||
+                        messageValue.contains("correct");
+
+      if (isSuccess) {
         emit(VerifySuccess());
       } else {
-        emit(VerifyError(data['message']));
+        emit(VerifyError(data['message'] ?? "Verification failed"));
       }
+    } on DioException catch (e) {
+      debugPrint("VERIFY OTP ERROR: ${e.response?.data}");
+      final serverData = e.response?.data;
+      String serverMessage = "Verification failed";
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "Verification failed";
+      } else if (serverData != null && serverData.toString().isNotEmpty) {
+        serverMessage = serverData.toString();
+      }
+      emit(VerifyError(serverMessage));
     } catch (e) {
-      emit(VerifyError("Verification failed"));
+      emit(VerifyError("Something went wrong"));
     }
   }
 
@@ -231,14 +287,42 @@ class AuthCubit extends Cubit<AuthState> {
     String? phoneNumber,
     String? email,
   }) async {
+    emit(VerifyLoading());
     try {
-      await repo.resendOtp(
-        countryCode: phoneNumber != null ? countryCode : null,
+      final data = await repo.resendOtp(
+        countryCode: countryCode,
         phoneNumber: phoneNumber,
         email: email,
       );
+
+      debugPrint("RESEND OTP RESPONSE: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") ||
+                        messageValue.contains("sent");
+
+      if (isSuccess) {
+        emit(ResendOtpSuccess());
+      } else {
+        emit(VerifyError(data['message'] ?? "Failed to resend"));
+      }
+    } on DioException catch (e) {
+      debugPrint("RESEND OTP ERROR: ${e.response?.data}");
+      final serverData = e.response?.data;
+      String serverMessage = "Failed to resend";
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "Failed to resend";
+      } else if (serverData != null && serverData.toString().isNotEmpty) {
+        serverMessage = serverData.toString();
+      }
+      emit(VerifyError(serverMessage));
     } catch (e) {
-      emit(VerifyError("Failed to resend"));
+      emit(VerifyError("Something went wrong"));
     }
   }
 }

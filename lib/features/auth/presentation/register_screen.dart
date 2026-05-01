@@ -34,63 +34,106 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
   String selectedCountryCode = '+20';
   bool isSubmitting = false;
+  bool isFormValid = false;
 
 
   String? validatePhone(String value, String countryCode) {
     value = value.replaceAll(RegExp(r'\D'), '');
 
-    switch (countryCode) {
+    if (value.isEmpty) {
+      return "Phone number is required";
+    }
 
+    switch (countryCode) {
       case '+20': // Egypt
-        if (value.length != 10) {
-          return "Egypt numbers must be exactly 10 digits";
+        if (value.length < 10) {
+          return "Egypt number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "Egypt number is too long (10 digits only)";
         }
         break;
 
       case '+966': // Saudi
-        if (value.length != 9) {
-          return "Saudi numbers must be 9 digits";
+        if (value.length < 9) {
+          return "Saudi number is too short (9 digits required)";
+        }
+        if (value.length > 9) {
+          return "Saudi number is too long (9 digits only)";
         }
         break;
 
       case '+971': // UAE
-        if (value.length != 9) {
-          return "UAE numbers must be 9 digits";
+        if (value.length < 9) {
+          return "UAE number is too short (9 digits required)";
+        }
+        if (value.length > 9) {
+          return "UAE number is too long (9 digits only)";
         }
         break;
 
       case '+1': // USA
-        if (value.length != 10) {
-          return "US numbers must be 10 digits";
+        if (value.length < 10) {
+          return "US number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "US number is too long (10 digits only)";
         }
         break;
 
       case '+49': // Germany
-        if (value.length < 10 || value.length > 11) {
-          return "Germany numbers must be 10–11 digits";
+        if (value.length < 10) {
+          return "Germany number is too short (min 10 digits)";
+        }
+        if (value.length > 11) {
+          return "Germany number is too long (max 11 digits)";
         }
         break;
 
       case '+98': // Iran
-        if (value.length != 10) {
-          return "Iran numbers must be 10 digits";
+        if (value.length < 10) {
+          return "Iran number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "Iran number is too long (10 digits only)";
         }
         break;
 
       default:
-        return "Unsupported country";
+        return "This country is not supported yet";
     }
 
     return null;
   }
 
-  bool isValidUsername(String value) {
-    final regex = RegExp(r'^[a-zA-Z0-9_]+$');
-    return regex.hasMatch(value);
-  }
+  void validateForm() {
+    final username = userNameController.text.trim();
+    final phone = phoneNumberController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    final confirmPassword = confirmPasswordController.text;
 
-  bool isValidEmail(String value) {
-    return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value);
+    final isUsernameValid = username.isNotEmpty && username.length >= 3;
+
+    final isPhoneValid = validatePhone(phone, selectedCountryCode) == null;
+
+    final isEmailValid = RegExp(
+      r'^[\w\.-]+@[\w\.-]+\.com$',
+    ).hasMatch(email);
+
+    final isPasswordValid = password.length >= 8;
+
+    final isConfirmPasswordValid =
+        confirmPassword == password && confirmPassword.isNotEmpty;
+
+    setState(() {
+      isFormValid =
+          isUsernameValid &&
+              isPhoneValid &&
+              isEmailValid &&
+              isPasswordValid &&
+              isConfirmPasswordValid;
+    });
   }
 
   bool isPasswordMatch = true;
@@ -121,14 +164,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               if (state is RegisterLoading) {
                 AppLoading.show(context);
               } else {
-                // For any other state, try to hide the loading dialog if it's showing.
-                // We use a try-catch or a more careful approach if possible, 
-                // but since AppLoading.hide pops the root navigator, 
-                // we should only call it if we are sure a dialog is showing.
-                // However, the common pattern is to just call it.
-                // To be safer, we can check if the dialog is showing, 
-                // but AppLoading doesn't provide a way.
-                // Let's just ensure we call it once.
                 if (state is RegisterSuccess || state is RegisterError) {
                   AppLoading.hide(context);
                 }
@@ -138,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 toastification.show(
                   context: context,
                   type: ToastificationType.success,
-                  title: const Text("Account created successfully"),
+                  title: const Text("User registered successfully. Please check your email for OTP."),
                   autoCloseDuration: const Duration(seconds: 5),
                 );
                 
@@ -149,6 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     "countryCode": selectedCountryCode,
                     "type": VerificationType.email,
                     "value": emailController.text.trim(),
+                    "phoneNumber": phoneNumberController.text.trim(),
                   },
                 );
               }
@@ -171,6 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: SingleChildScrollView(
                       child: Form(
                         key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Column(
                           children: [
 
@@ -193,6 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             AppFormField(
                               onChanged: (value) {
+                                validateForm();
                                 _formKey.currentState!.validate();
                               },
                               label: LocaleKeys.name_label.tr(),
@@ -227,15 +265,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             AppFormField(
                               label: LocaleKeys.email_label.tr(),
                               controller: emailController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Email is required";
-                                }
-                                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                                  return "Invalid email";
-                                }
-                                return null;
+                              onChanged: (value) {
+                                validateForm();
                               },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Email is required";
+                                  }
+
+                                  final emailRegex = RegExp(
+                                    r'^[\w\.-]+@[\w\.-]+\.com$',
+                                  );
+
+                                  if (!emailRegex.hasMatch(value)) {
+                                    return "Email must be like example@example.com";
+                                  }
+
+                                  return null;
+                                }
                             ),
 
                             SizedBox(height: 33.h),
@@ -244,6 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: phoneNumberController,
                               onCountryChanged: (code) {
                                 selectedCountryCode = code;
+                                validateForm();
                               },
                               validator: (value) {
                                 return validatePhone(value!, selectedCountryCode);
@@ -255,6 +303,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             AppFormField(
                               label: LocaleKeys.create_pass_label.tr(),
                               controller: passwordController,
+                              onChanged: (value) {
+                                validateForm();
+                              },
                               isPassword: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -278,6 +329,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               label: LocaleKeys.confirm_pass_label.tr(),
                               isPassword: true,
                               controller: confirmPasswordController,
+                              onChanged: (value) {
+                                validateForm();
+                              },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Confirm your password";
@@ -292,21 +346,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             SizedBox(height: 17.h),
 
                             AppButton(
-                              onPressed: () {
-                                if (isSubmitting) return;
-
+                              onPressed: isFormValid
+                                  ? () {
                                 if (!_formKey.currentState!.validate()) return;
 
-                                setState(() => isSubmitting = true);
-
                                 context.read<AuthCubit>().register(
-                                  email: emailController.text.trim(),
                                   userName: userNameController.text.trim(),
-                                  phoneNumber: phoneNumberController.text.trim(),
-                                  password: passwordController.text.trim(),
                                   countryCode: selectedCountryCode,
+                                  phoneNumber: phoneNumberController.text.trim(),
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim(),
                                 );
-                              },
+                              }
+                                  : null,
                               txt: LocaleKeys.next_button.tr(),
                             ),
 

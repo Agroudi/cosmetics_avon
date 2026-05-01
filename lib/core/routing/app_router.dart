@@ -29,6 +29,7 @@ class AppRouter {
             countryCode: args['countryCode'],
             type: args['type'],
             value: args['value'],
+            phoneNumber: args['phoneNumber'],
           ),
         );
 

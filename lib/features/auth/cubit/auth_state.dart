@@ -37,6 +37,8 @@ class VerifyLoading extends AuthState{}
 
 class VerifySuccess extends AuthState{}
 
+class ResendOtpSuccess extends AuthState{}
+
 class VerifyError extends AuthState{
   final String message;
   VerifyError(this.message);

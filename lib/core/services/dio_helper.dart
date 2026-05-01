@@ -8,7 +8,7 @@ class DioHelper {
     dio = Dio(
         BaseOptions(
             baseUrl: 'https://cosmatics.growfet.com/api/',
-            receiveDataWhenStatusError: false,
+            receiveDataWhenStatusError: true,
             connectTimeout: const Duration(seconds: 60),
             receiveTimeout: const Duration(seconds: 60),
             sendTimeout: const Duration(seconds: 60)

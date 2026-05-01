@@ -6,11 +6,11 @@ import '../theme/colors.dart';
 import '../theme/text_style.dart';
 
 class AppButton extends StatelessWidget {
-  AppButton({super.key, required this.txt,required this.onPressed, this.color});
+  AppButton({super.key, required this.txt, this.onPressed, this.color});
 
   final String txt;
   Color? color;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context)

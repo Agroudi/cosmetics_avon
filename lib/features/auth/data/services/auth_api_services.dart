@@ -79,14 +79,14 @@ class AuthApiService {
     String? email,
     required String otpCode
   }) async {
+    final Map<String, dynamic> data = {"otpCode": otpCode};
+    if (countryCode != null) data["countryCode"] = countryCode;
+    if (phoneNumber != null) data["phoneNumber"] = phoneNumber;
+    if (email != null) data["email"] = email;
+
     return await DioHelper.post(
       endPoint: 'Auth/verify-otp',
-      data: {
-        "countryCode": countryCode,
-        "phoneNumber": phoneNumber,
-        "email": email,
-        "otpCode": otpCode,
-      },
+      data: data,
     );
   }
 
@@ -95,13 +95,14 @@ class AuthApiService {
     String? phoneNumber,
     String? email,
   }) async {
+    final Map<String, dynamic> data = {};
+    if (countryCode != null) data["countryCode"] = countryCode;
+    if (phoneNumber != null) data["phoneNumber"] = phoneNumber;
+    if (email != null) data["email"] = email;
+
     return await DioHelper.post(
       endPoint: 'Auth/resend-otp',
-      data: {
-        "countryCode": countryCode,
-        "phoneNumber": phoneNumber,
-        "email": email,
-      },
+      data: data,
     );
   }
 }

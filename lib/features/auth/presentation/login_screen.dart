@@ -30,52 +30,87 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String countryCode = '+20';
+  bool isFormValid = false;
 
   String? validatePhone(String value, String countryCode) {
-    value = value.replaceAll(RegExp(r'\s+'), '');
+    value = value.replaceAll(RegExp(r'\D'), '');
+
+    if (value.isEmpty) {
+      return "Phone number is required";
+    }
 
     switch (countryCode) {
       case '+20': // Egypt
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "Egypt phone must be 10 digits";
+        if (value.length < 10) {
+          return "Egypt number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "Egypt number is too long (10 digits only)";
         }
         break;
 
       case '+966': // Saudi
-        if (!RegExp(r'^[0-9]{9}$').hasMatch(value)) {
-          return "Saudi phone must be 9 digits";
+        if (value.length < 9) {
+          return "Saudi number is too short (9 digits required)";
+        }
+        if (value.length > 9) {
+          return "Saudi number is too long (9 digits only)";
         }
         break;
 
       case '+971': // UAE
-        if (!RegExp(r'^[0-9]{9}$').hasMatch(value)) {
-          return "UAE phone must be 9 digits";
+        if (value.length < 9) {
+          return "UAE number is too short (9 digits required)";
+        }
+        if (value.length > 9) {
+          return "UAE number is too long (9 digits only)";
         }
         break;
 
       case '+1': // USA
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "US phone must be 10 digits";
+        if (value.length < 10) {
+          return "US number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "US number is too long (10 digits only)";
         }
         break;
 
       case '+49': // Germany
-        if (!RegExp(r'^[0-9]{10,11}$').hasMatch(value)) {
-          return "Germany phone must be 10–11 digits";
+        if (value.length < 10) {
+          return "Germany number is too short (min 10 digits)";
+        }
+        if (value.length > 11) {
+          return "Germany number is too long (max 11 digits)";
         }
         break;
 
       case '+98': // Iran
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "Iran phone must be 10 digits";
+        if (value.length < 10) {
+          return "Iran number is too short (10 digits required)";
+        }
+        if (value.length > 10) {
+          return "Iran number is too long (10 digits only)";
         }
         break;
 
       default:
-        return "Unsupported country";
+        return "This country is not supported yet";
     }
 
     return null;
+  }
+
+  void validateForm() {
+    final phone = phoneController.text.trim();
+    final password = passwordController.text.trim();
+
+    final isPhoneValid = validatePhone(phone, countryCode) == null;
+    final isPasswordValid = password.length >= 8;
+
+    setState(() {
+      isFormValid = isPhoneValid && isPasswordValid;
+    });
   }
 
   @override
@@ -97,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       context: context,
                       type: ToastificationType.success,
                       title: Text("Login Successful"),
+                      autoCloseDuration: const Duration(seconds: 5),
                     );
 
                     Navigator.pushNamed(context, AppRoutes.home);
@@ -107,6 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       context: context,
                       type: ToastificationType.error,
                       title: Text(state.message),
+                      autoCloseDuration: const Duration(seconds: 5),
                     );
                   }
                 },
@@ -120,6 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SingleChildScrollView(
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         children: [
                           SizedBox(height: 43.h),
@@ -142,43 +180,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           SizedBox(height: 41.h),
                           AppPhoneField(
-                            controller: phoneController,
-                            onCountryChanged: (code) {
-                              countryCode = code;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Phone is required";
-                              }
-                              return validatePhone(value, countryCode);
-                            },
-                          ),
+                              controller: phoneController,
+                              onChanged: (value) {
+                                validateForm();
+                              },
+                              onCountryChanged: (code) {
+                                countryCode = code;
+                                validateForm();
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Phone is required";
+                                }
+                                return validatePhone(value, countryCode);
+                              },
+                            ),
                           SizedBox(height: 8.h),
                           AppFormField(
-                            controller: passwordController,
-                            label: LocaleKeys.password_label.tr(),
-                            isPassword: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Password is required";
-                              }
-                              if (value.length < 8) {
-                                return "Min 8 characters";
-                              }
-                              return null;
-                            },
-                          ),
+                              controller: passwordController,
+                              onChanged: (value) {
+                                validateForm();
+                              },
+                              label: LocaleKeys.password_label.tr(),
+                              isPassword: true,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Password is required";
+                                }
+                                if (value.length < 8) {
+                                  return "Min 8 characters";
+                                }
+                                return null;
+                              },
+                            ),
                           Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                   onPressed: () {
-                                    if (!_formKey.currentState!.validate()) return;
-
-                                    context.read<AuthCubit>().login(
-                                      countryCode: countryCode,
-                                      phoneNumber: phoneController.text.trim(),
-                                      password: passwordController.text.trim(),
-                                    );
+                                    Navigator.pushNamed(context, AppRoutes.forgotPassword);
                                   },
                                   child: Text(
                                       LocaleKeys.forgot_password.tr(),
@@ -192,13 +231,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           SizedBox(height: 43.h),
                           AppButton(
-                              onPressed: () {
+                              onPressed: isFormValid
+                                  ? () {
+                                if (!_formKey.currentState!.validate()) return;
+
                                 context.read<AuthCubit>().login(
                                   countryCode: countryCode,
                                   phoneNumber: phoneController.text.trim(),
                                   password: passwordController.text.trim(),
                                 );
-                              },
+                              }
+                                  : null,
                               txt: LocaleKeys.login_button.tr()
                           ),
                         SizedBox(height: 82.h),

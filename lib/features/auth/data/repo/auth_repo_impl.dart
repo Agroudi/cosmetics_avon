@@ -71,6 +71,7 @@ class AuthRepoImpl implements AuthRepo
     return response.data;
   }
 
+  @override
   Future<Map<String, dynamic>> verifyCode({
     String? countryCode,
     String? phoneNumber,

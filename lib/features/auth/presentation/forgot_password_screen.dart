@@ -104,7 +104,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         arguments: {
                           "type": VerificationType.phone,
                           "value": phoneController.text.trim(),
-                          "countryCode": "+20",
+                          "countryCode": selectedCountryCode,
                         },
                       );
                     }
