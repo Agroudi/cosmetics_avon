@@ -82,13 +82,14 @@
   "pass_match_validate" : "Passwords do not match",
   "forgot_pass_otp" : "OTP sent successfully to your email.",
   "pass_title_dialog" : "Password Created!",
-  "pass_desc_dialog" : "Congratulations! Your password\\n has been successfully created",
+  "pass_desc_dialog" : "Congratulations! Your password\n has been successfully created",
   "pass_button_dailog" : "Return to Login",
   "reg_title_dialog" : "Account Activated!",
-  "reg_desc_dialog" : "Congratulations! Your account has been successfully activated",
+  "reg_desc_dialog" : "Congratulations! Your account\n has been successfully activated",
   "reg_button_dialog" : "Go to home",
   "new_pass_form" : "New Password",
   "confirm_pass_form" : "Confirm Password",
   "pass_not_match" : "Passwords do not match",
-  "connection_timeout" : "Connection timeout, try again"
+  "connection_timeout" : "Connection timeout, try again",
+  "pass_reset_toast" : "Password has been rest successfully"
 }

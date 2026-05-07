@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="cosmetics_avon"
+        android:label="Avon"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

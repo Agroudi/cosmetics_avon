@@ -89,7 +89,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                 toastification.show(
                   context: context,
                   type: ToastificationType.success,
-                  title: Text("Password reset successfully"),
+                  title: Text(LocaleKeys.pass_reset_toast.tr()),
                   autoCloseDuration: const Duration(seconds: 5),
                 );
                 showDialog(
@@ -97,9 +97,9 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                   barrierDismissible: false,
                   builder: (_) {
                     return SharedDialog(
-                      title: "Password Created!",
-                      description: "Congratulations! Your password\n has been successfully created",
-                      buttonText: "Return to Login",
+                      title: LocaleKeys.pass_title_dialog.tr(),
+                      description: LocaleKeys.pass_desc_dialog.tr(),
+                      buttonText: LocaleKeys.pass_button_dailog.tr(),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
                           context,

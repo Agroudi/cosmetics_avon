@@ -94,5 +94,6 @@ abstract class  LocaleKeys {
   static const confirm_pass_form = 'confirm_pass_form';
   static const pass_not_match = 'pass_not_match';
   static const connection_timeout = 'connection_timeout';
+  static const pass_reset_toast = 'pass_reset_toast';
 
 }
