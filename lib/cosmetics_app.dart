@@ -22,7 +22,7 @@ class CosmeticsApp extends StatelessWidget
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           onGenerateRoute: AppRouter.generateRoute,
-          initialRoute: AppRoutes.login,
+          initialRoute: AppRoutes.splash,
         )
     );
   }

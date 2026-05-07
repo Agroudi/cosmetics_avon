@@ -367,7 +367,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               txt: LocaleKeys.next_button.tr(),
                             ),
 
-                            SizedBox(height: 55.h),
+                            SizedBox(height: 50.h),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,

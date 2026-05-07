@@ -17,6 +17,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/auth_logo.svg
   String get authLogo => 'assets/icons/auth_logo.svg';
 
+  /// File path: assets/icons/back_button.svg
+  String get backButton => 'assets/icons/back_button.svg';
+
   /// File path: assets/icons/eye_false.svg
   String get eyeFalse => 'assets/icons/eye_false.svg';
 
@@ -26,20 +29,25 @@ class $AssetsIconsGen {
   /// File path: assets/icons/splash.png
   AssetGenImage get splash => const AssetGenImage('assets/icons/splash.png');
 
+  /// File path: assets/icons/splash_logo.svg
+  String get splashLogo => 'assets/icons/splash_logo.svg';
+
   /// File path: assets/icons/success_dialouge.svg
   String get successDialouge => 'assets/icons/success_dialouge.svg';
 
-  /// File path: assets/icons/back_button.svg
-  String get backButton => 'assets/icons/back_button.svg';
-
+  /// File path: assets/icons/swoosh.svg
+  String get swoosh => 'assets/icons/swoosh.svg';
 
   /// List of all assets
   List<dynamic> get values => [
     authLogo,
+    backButton,
     eyeFalse,
     eyeTrue,
     splash,
+    splashLogo,
     successDialouge,
+    swoosh,
   ];
 }
 
@@ -64,6 +72,16 @@ class $AssetsImagesGen {
   List<dynamic> get values => [boarding0, boarding1, boarding2, login];
 }
 
+class $AssetsLottieGen {
+  const $AssetsLottieGen();
+
+  /// File path: assets/lottie/lipstick.json
+  String get lipstick => 'assets/lottie/lipstick.json';
+
+  /// List of all assets
+  List<String> get values => [lipstick];
+}
+
 class $AssetsTranslationsGen {
   const $AssetsTranslationsGen();
 
@@ -82,6 +100,7 @@ class Assets {
 
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
+  static const $AssetsLottieGen lottie = $AssetsLottieGen();
   static const $AssetsTranslationsGen translations = $AssetsTranslationsGen();
 }
 

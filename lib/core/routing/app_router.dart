@@ -1,4 +1,6 @@
 import 'package:cosmetics_avon/features/auth/presentation/create_password_screen.dart';
+import 'package:cosmetics_avon/features/boarding/presentation/boarding_screen.dart';
+import 'package:cosmetics_avon/features/splash/presentaion/splash_screen.dart';
 import 'package:flutter/material.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -10,6 +12,12 @@ import 'app_routes.dart';
 class AppRouter {
   static Route generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+
+      case AppRoutes.boarding:
+        return MaterialPageRoute(builder: (_) => const BoardingScreen());
+
       case AppRoutes.login:
         return MaterialPageRoute(builder: (_) => LoginScreen());
 
