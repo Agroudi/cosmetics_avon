@@ -29,6 +29,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/success_dialouge.svg
   String get successDialouge => 'assets/icons/success_dialouge.svg';
 
+  /// File path: assets/icons/back_button.svg
+  String get backButton => 'assets/icons/back_button.svg';
+
+
   /// List of all assets
   List<dynamic> get values => [
     authLogo,

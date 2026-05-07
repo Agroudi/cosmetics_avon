@@ -36,66 +36,66 @@ class _LoginScreenState extends State<LoginScreen> {
     value = value.replaceAll(RegExp(r'\D'), '');
 
     if (value.isEmpty) {
-      return "Phone number is required";
+      return LocaleKeys.empty_number.tr();
     }
 
     switch (countryCode) {
       case '+20': // Egypt
         if (value.length < 10) {
-          return "Egypt number is too short (10 digits required)";
+          return LocaleKeys.short_egy_number.tr();
         }
         if (value.length > 10) {
-          return "Egypt number is too long (10 digits only)";
+          return LocaleKeys.long_egy_number.tr();
         }
         break;
 
       case '+966': // Saudi
         if (value.length < 9) {
-          return "Saudi number is too short (9 digits required)";
+          return LocaleKeys.short_ksa_number.tr();
         }
         if (value.length > 9) {
-          return "Saudi number is too long (9 digits only)";
+          return LocaleKeys.long_ksa_number.tr();
         }
         break;
 
       case '+971': // UAE
         if (value.length < 9) {
-          return "UAE number is too short (9 digits required)";
+          return LocaleKeys.short_uae_number.tr();
         }
         if (value.length > 9) {
-          return "UAE number is too long (9 digits only)";
+          return LocaleKeys.long_uae_number;
         }
         break;
 
       case '+1': // USA
         if (value.length < 10) {
-          return "US number is too short (10 digits required)";
+          return LocaleKeys.short_us_number.tr();
         }
         if (value.length > 10) {
-          return "US number is too long (10 digits only)";
+          return LocaleKeys.long_us_number.tr();
         }
         break;
 
       case '+49': // Germany
         if (value.length < 10) {
-          return "Germany number is too short (min 10 digits)";
+          return LocaleKeys.short_german_number.tr();
         }
         if (value.length > 11) {
-          return "Germany number is too long (max 11 digits)";
+          return LocaleKeys.long_german_number.tr();
         }
         break;
 
       case '+98': // Iran
         if (value.length < 10) {
-          return "Iran number is too short (10 digits required)";
+          return LocaleKeys.short_iran_number.tr();
         }
         if (value.length > 10) {
-          return "Iran number is too long (10 digits only)";
+          return LocaleKeys.long_iran_number.tr();
         }
         break;
 
       default:
-        return "This country is not supported yet";
+        return LocaleKeys.unsupported_number.tr();
     }
 
     return null;
@@ -131,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     toastification.show(
                       context: context,
                       type: ToastificationType.success,
-                      title: Text("Login Successful"),
+                      title: Text(LocaleKeys.toast_success_login.tr()),
                       autoCloseDuration: const Duration(seconds: 5),
                     );
 
@@ -151,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
               body: SafeArea(
                 child: Padding(
                   padding: EdgeInsets.only(
-                    left: 13,
-                    right: 13,
+                    left: 13.w,
+                    right: 13.w,
                   ),
                   child: SingleChildScrollView(
                     child: Form(
@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           SizedBox(height: 43.h),
-                          Assets.images.login.image(width: 284, height: 227),
+                          Assets.images.login.image(width: 284.w, height: 227.h),
                           SizedBox(height: 25.h),
                           Text(
                               LocaleKeys.login_now.tr(),
@@ -190,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Phone is required";
+                                  return LocaleKeys.empty_number.tr();
                                 }
                                 return validatePhone(value, countryCode);
                               },
@@ -205,10 +205,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               isPassword: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Password is required";
+                                  return LocaleKeys.password_required.tr();
                                 }
                                 if (value.length < 8) {
-                                  return "Min 8 characters";
+                                  return LocaleKeys.min_8_char.tr();
                                 }
                                 return null;
                               },

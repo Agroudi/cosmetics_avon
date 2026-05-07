@@ -1,3 +1,4 @@
+import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:cosmetics_avon/gen/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -32,12 +33,11 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        /// Country Code
         Container(
           padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 2.h),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.Border),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
           child: DropdownButton<String>(
             value: countryCode,
@@ -46,9 +46,8 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
             items: countryCodes.map((code) {
               return DropdownMenuItem(
                 value: code,
-                child: Text(
-                  code,
-                  style: TextStyle(color: AppColors.Primary),
+                child: Text(code,
+                  style: AppTextStyle.txtStyle.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w500),
                 ),
               );
             }).toList(),
@@ -56,7 +55,6 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
               setState(() {
                 countryCode = value!;
               });
-
               widget.onCountryChanged?.call(countryCode);
             },
           ),

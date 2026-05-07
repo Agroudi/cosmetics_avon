@@ -40,10 +40,7 @@ class AppFormField extends StatelessWidget {
           validator: validator,
           onChanged: onChanged,
           cursorColor: AppColors.Primary,
-          style: TextStyle(
-            color: AppColors.Primary,
-            fontSize: 14.sp,
-          ),
+          style: AppTextStyle.txtStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 13.sp),
           decoration: InputDecoration(
             labelText: label,
             errorText: errorText,
@@ -52,22 +49,22 @@ class AppFormField extends StatelessWidget {
             ),
 
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide(color: AppColors.Txt),
             ),
 
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide(color: AppColors.Primary),
             ),
 
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide(color: Colors.red),
             ),
 
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide(color: Colors.red),
             ),
 

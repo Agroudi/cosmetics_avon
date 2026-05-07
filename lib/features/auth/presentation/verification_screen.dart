@@ -43,28 +43,41 @@ class VerificationScreen extends StatefulWidget {
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
+  static DateTime? otpExpiryTime;
   final TextEditingController otpController = TextEditingController();
 
   int seconds = 30;
-  int resendAttempt = 0;
+  int resendAttempt = -1;
   final List<int> backoffTimes = [30, 60, 120, 300];
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    if (otpExpiryTime == null) {
+      otpExpiryTime = DateTime.now().add(const Duration(seconds: 30));
+    }
+
+    updateRemainingTime();
     startTimer();
+  }
+
+  void updateRemainingTime() {
+    final difference = otpExpiryTime!.difference(DateTime.now()).inSeconds;
+
+    setState(() {
+      seconds = difference > 0 ? difference : 0;
+    });
   }
 
   void startTimer() {
     _timer?.cancel();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      updateRemainingTime();
+
       if (seconds == 0) {
         timer.cancel();
-      } else {
-        setState(() {
-          seconds--;
-        });
       }
     });
   }
@@ -101,39 +114,47 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
               if (state is VerifySuccess) {
                 if (widget.type == VerificationType.email) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.success,
+                    title: const Text("Account activated successfully"),
+                    autoCloseDuration: const Duration(seconds: 5),
+                  );
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => SharedDialog(
-                      title: "Account Activated!",
-                      description: "Congratulations! Your account has been successfully activated",
-                      buttonText: "Go to login",
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          AppRoutes.login,
-                              (route) => false,
-                        );
-                      },
-                    ),
+                    builder: (_) {
+                      return SharedDialog(
+                        title: LocaleKeys.reg_title_dialog.tr(),
+                        description: LocaleKeys.reg_desc_dialog.tr(),
+                        buttonText: LocaleKeys.reg_button_dialog.tr(),
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            AppRoutes.login,
+                                (route) => false,
+                          );
+                        },
+                      );
+                    },
                   );
                 } else {
-                  showDialog(
+                  toastification.show(
                     context: context,
-                    barrierDismissible: false,
-                    builder: (_) => SharedDialog(
-                      title: "Password Created!",
-                      description: "Congratulations! Your password\n has been successfully created",
-                      buttonText: "Return to login",
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.login,
-                        );
-                      },
-                    ),
+                    type: ToastificationType.success,
+                    title: const Text("Phone verified successfully"),
+                    autoCloseDuration: const Duration(seconds: 5),
+                  );
+
+                  Navigator.pushReplacementNamed(
+                    context,
+                    AppRoutes.createPassword,
+                    arguments: {
+                      "type": widget.type,
+                      "value": widget.value,
+                      "countryCode": widget.countryCode,
+                      "phoneNumber": widget.phoneNumber,
+                    },
                   );
                 }
               }
@@ -161,7 +182,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               alignment: Alignment.centerLeft,
                               child: IconButton(
                                 onPressed: () => Navigator.pop(context),
-                                icon: Icon(Icons.arrow_back_ios, color: AppColors.Secondary),
+                                icon: SvgPicture.asset(Assets.icons.backButton),
                               ),
                             ),
                             SvgPicture.asset(Assets.icons.authLogo),
@@ -264,26 +285,29 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                     if (seconds != 0) return;
 
                                     if (widget.type == VerificationType.phone) {
-                                  context.read<AuthCubit>().resendOtp(
-                                    countryCode: widget.countryCode,
-                                    phoneNumber: widget.value,
-                                  );
-                                } else {
-                                  context.read<AuthCubit>().resendOtp(
-                                    email: widget.value,
-                                    countryCode: widget.countryCode,
-                                    phoneNumber: widget.phoneNumber,
-                                  );
-                                }
+                                      context.read<AuthCubit>().resendOtp(
+                                        countryCode: widget.countryCode,
+                                        phoneNumber: widget.value,
+                                      );
+                                    } else {
+                                      context.read<AuthCubit>().resendOtp(
+                                        email: widget.value,
+                                        countryCode: widget.countryCode,
+                                        phoneNumber: widget.phoneNumber,
+                                      );
+                                    }
 
                                     setState(() {
                                       if (resendAttempt < backoffTimes.length - 1) {
                                         resendAttempt++;
-                                      } else {
-                                        resendAttempt = backoffTimes.length - 1;
                                       }
-                                      seconds = backoffTimes[resendAttempt];
+
+                                      otpExpiryTime = DateTime.now().add(
+                                        Duration(seconds: backoffTimes[resendAttempt]),
+                                      );
                                     });
+
+                                    updateRemainingTime();
                                     startTimer();
                                   },
                                   child: Text(

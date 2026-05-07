@@ -29,54 +29,86 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController phoneController = TextEditingController();
   String selectedCountryCode = '+20';
   final _formKey = GlobalKey<FormState>();
+  bool isFormValid = false;
 
   String? validatePhone(String value, String countryCode) {
-    value = value.replaceAll(RegExp(r'\s+'), '');
+    value = value.replaceAll(RegExp(r'\D'), '');
+
+    if (value.isEmpty) {
+      return LocaleKeys.empty_number.tr();
+    }
 
     switch (countryCode) {
       case '+20': // Egypt
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "Egypt phone must be 10 digits";
+        if (value.length < 10) {
+          return LocaleKeys.short_egy_number.tr();
+        }
+        if (value.length > 10) {
+          return LocaleKeys.long_egy_number.tr();
         }
         break;
 
       case '+966': // Saudi
-        if (!RegExp(r'^[0-9]{9}$').hasMatch(value)) {
-          return "Saudi phone must be 9 digits";
+        if (value.length < 9) {
+          return LocaleKeys.short_ksa_number.tr();
+        }
+        if (value.length > 9) {
+          return LocaleKeys.long_ksa_number.tr();
         }
         break;
 
       case '+971': // UAE
-        if (!RegExp(r'^[0-9]{9}$').hasMatch(value)) {
-          return "UAE phone must be 9 digits";
+        if (value.length < 9) {
+          return LocaleKeys.short_uae_number.tr();
+        }
+        if (value.length > 9) {
+          return LocaleKeys.long_uae_number;
         }
         break;
 
       case '+1': // USA
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "US phone must be 10 digits";
+        if (value.length < 10) {
+          return LocaleKeys.short_us_number.tr();
+        }
+        if (value.length > 10) {
+          return LocaleKeys.long_us_number.tr();
         }
         break;
 
       case '+49': // Germany
-        if (!RegExp(r'^[0-9]{10,11}$').hasMatch(value)) {
-          return "Germany phone must be 10–11 digits";
+        if (value.length < 10) {
+          return LocaleKeys.short_german_number.tr();
+        }
+        if (value.length > 11) {
+          return LocaleKeys.long_german_number.tr();
         }
         break;
 
       case '+98': // Iran
-        if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return "Iran phone must be 10 digits";
+        if (value.length < 10) {
+          return LocaleKeys.short_iran_number.tr();
+        }
+        if (value.length > 10) {
+          return LocaleKeys.long_iran_number.tr();
         }
         break;
 
       default:
-        return "Unsupported country";
+        return LocaleKeys.unsupported_number.tr();
     }
 
     return null;
   }
 
+  void validateForm() {
+    final phone = phoneController.text.trim();
+
+    final isPhoneValid = validatePhone(phone, selectedCountryCode) == null;
+
+    setState(() {
+      isFormValid = isPhoneValid;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -95,7 +127,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       toastification.show(
                         context: context,
                         type: ToastificationType.success,
-                        title: const Text("Code sent"),
+                        title: Text(LocaleKeys.forgot_pass_otp.tr()),
+                        autoCloseDuration: const Duration(seconds: 5),
                       );
 
                       Navigator.pushNamed(
@@ -105,6 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           "type": VerificationType.phone,
                           "value": phoneController.text.trim(),
                           "countryCode": selectedCountryCode,
+                          "PhoneNumber": phoneController.text.trim(),
                         },
                       );
                     }
@@ -114,22 +148,30 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         context: context,
                         type: ToastificationType.error,
                         title: Text(state.message),
+                        autoCloseDuration: const Duration(seconds: 5),
                       );
                     }
                   },
                   child: Scaffold(
                       body: SafeArea(
-                          child: Center(
-                              child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 13),
-                                  child: Form(
-                                    key: _formKey,
-                                    child: Column(
-                                        children: [
-                                          SizedBox(height: 43.h),
-                                          SvgPicture.asset(Assets.icons.authLogo),
-                                          SizedBox(height: 40.h),
+                          child: SingleChildScrollView(
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 13),
+                                child: Form(
+                                  key: _formKey,
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  child: Column(
+                                      children: [
+                                        SizedBox(height: 20.h),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: IconButton(
+                                            onPressed: () => Navigator.pop(context),
+                                            icon: SvgPicture.asset(Assets.icons.backButton),
+                                          ),
+                                        ),
+                                        SvgPicture.asset(Assets.icons.authLogo),
+                                        SizedBox(height: 40.h),
                                           Text(
                                               LocaleKeys.forgot_pass_title.tr(),
                                               style: AppTextStyle.txtStyle
@@ -152,30 +194,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                           SizedBox(height: 62.h),
                                           AppPhoneField(
                                             controller: phoneController,
+                                            onChanged: (value) {
+                                              validateForm();
+                                            },
                                             onCountryChanged: (code) {
                                               selectedCountryCode = code;
+                                              validateForm();
                                             },
-                                            onChanged: (value) {},
                                             validator: (value) {
                                               if (value == null || value.isEmpty) {
-                                                return "Phone is required";
+                                                return LocaleKeys.empty_number.tr();
                                               }
                                               return validatePhone(value, selectedCountryCode);
                                             },
                                           ),
                                           SizedBox(height: 56.h),
                                           AppButton(
-                                            onPressed: () {
+                                            onPressed: isFormValid
+                                                ? () {
                                               if (!_formKey.currentState!.validate()) return;
 
                                               context.read<AuthCubit>().forgotPassword(
                                                 phoneNumber: phoneController.text.trim(),
                                                 countryCode: selectedCountryCode,
                                               );
-                                            },
+                                            }
+                                                : null,
                                             txt: LocaleKeys.next_button.tr(),
                                           ),
-                                          Spacer()
+                                          SizedBox(height: 20.h),
                                         ]
                                     ),
                                   )

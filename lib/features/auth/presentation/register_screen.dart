@@ -18,6 +18,7 @@ import '../../../gen/locale_keys.g.dart';
 import '../cubit/auth_cubit.dart';
 import '../data/repo/auth_repo_impl.dart';
 import '../data/services/auth_api_services.dart';
+import '../widgets/dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -41,66 +42,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
     value = value.replaceAll(RegExp(r'\D'), '');
 
     if (value.isEmpty) {
-      return "Phone number is required";
+      return LocaleKeys.empty_number.tr();
     }
 
     switch (countryCode) {
       case '+20': // Egypt
         if (value.length < 10) {
-          return "Egypt number is too short (10 digits required)";
+          return LocaleKeys.short_egy_number.tr();
         }
         if (value.length > 10) {
-          return "Egypt number is too long (10 digits only)";
+          return LocaleKeys.long_egy_number.tr();
         }
         break;
 
       case '+966': // Saudi
         if (value.length < 9) {
-          return "Saudi number is too short (9 digits required)";
+          return LocaleKeys.short_ksa_number.tr();
         }
         if (value.length > 9) {
-          return "Saudi number is too long (9 digits only)";
+          return LocaleKeys.long_ksa_number.tr();
         }
         break;
 
       case '+971': // UAE
         if (value.length < 9) {
-          return "UAE number is too short (9 digits required)";
+          return LocaleKeys.short_uae_number.tr();
         }
         if (value.length > 9) {
-          return "UAE number is too long (9 digits only)";
+          return LocaleKeys.long_uae_number;
         }
         break;
 
       case '+1': // USA
         if (value.length < 10) {
-          return "US number is too short (10 digits required)";
+          return LocaleKeys.short_us_number.tr();
         }
         if (value.length > 10) {
-          return "US number is too long (10 digits only)";
+          return LocaleKeys.long_us_number.tr();
         }
         break;
 
       case '+49': // Germany
         if (value.length < 10) {
-          return "Germany number is too short (min 10 digits)";
+          return LocaleKeys.short_german_number.tr();
         }
         if (value.length > 11) {
-          return "Germany number is too long (max 11 digits)";
+          return LocaleKeys.long_german_number.tr();
         }
         break;
 
       case '+98': // Iran
         if (value.length < 10) {
-          return "Iran number is too short (10 digits required)";
+          return LocaleKeys.short_iran_number.tr();
         }
         if (value.length > 10) {
-          return "Iran number is too long (10 digits only)";
+          return LocaleKeys.long_iran_number.tr();
         }
         break;
 
       default:
-        return "This country is not supported yet";
+        return LocaleKeys.unsupported_number.tr();
     }
 
     return null;
@@ -173,17 +174,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 toastification.show(
                   context: context,
                   type: ToastificationType.success,
-                  title: const Text("User registered successfully. Please check your email for OTP."),
+                  title: Text(LocaleKeys.reg_success_toast.tr()),
                   autoCloseDuration: const Duration(seconds: 5),
                 );
-                
-                Navigator.pushReplacementNamed(
+                Navigator.pushNamed(
                   context,
                   AppRoutes.verification,
                   arguments: {
-                    "countryCode": selectedCountryCode,
                     "type": VerificationType.email,
                     "value": emailController.text.trim(),
+                    "countryCode": selectedCountryCode,
                     "phoneNumber": phoneNumberController.text.trim(),
                   },
                 );
@@ -210,9 +210,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Column(
                           children: [
-
-                            SizedBox(height: 40.h),
-
+                            SizedBox(height: 20.h),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: SvgPicture.asset(Assets.icons.backButton),
+                              ),
+                            ),
                             SvgPicture.asset(Assets.icons.authLogo),
 
                             SizedBox(height: 40.h),
@@ -237,23 +242,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: userNameController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Username is required";
+                                  return LocaleKeys.user_required.tr();
                                 }
 
                                 if (value.length < 3) {
-                                  return "Username must be at least 3 characters";
+                                  return LocaleKeys.user_min_characters.tr();
                                 }
 
                                 if (value.length > 20) {
-                                  return "Username can't exceed 20 characters";
+                                  return LocaleKeys.user_max_characters.tr();
                                 }
 
                                 if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                                  return "Only letters, numbers and _ allowed";
+                                  return LocaleKeys.allowed_char_user.tr();
                                 }
 
                                 if (value.startsWith('_') || value.endsWith('_')) {
-                                  return "Username can't start or end with _";
+                                  return LocaleKeys.user_cant_start.tr();
                                 }
 
                                 return null;
@@ -270,7 +275,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return "Email is required";
+                                    return LocaleKeys.email_required.tr();
                                   }
 
                                   final emailRegex = RegExp(
@@ -278,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   );
 
                                   if (!emailRegex.hasMatch(value)) {
-                                    return "Email must be like example@example.com";
+                                    return LocaleKeys.email_must_be.tr();
                                   }
 
                                   return null;
@@ -309,16 +314,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               isPassword: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Password is required";
+                                  return LocaleKeys.password_required.tr();
                                 }
                                 if (value.length < 8) {
-                                  return "Min 8 characters";
+                                  return LocaleKeys.min_8_char.tr();
                                 }
                                 if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                                  return "Must contain 1 uppercase letter";
+                                  return LocaleKeys.must_upper_case.tr();
                                 }
                                 if (!RegExp(r'[0-9]').hasMatch(value)) {
-                                  return "Must contain 1 number";
+                                  return LocaleKeys.must_number.tr();
                                 }
                               },
                             ),
@@ -334,10 +339,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Confirm your password";
+                                  return LocaleKeys.confirm_pass_validate.tr();
                                 }
                                 if (value != passwordController.text) {
-                                  return "Passwords do not match";
+                                  return LocaleKeys.pass_match_validate.tr();
                                 }
                                 return null;
                               },
@@ -376,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);},
                                   child: Text(
                                     LocaleKeys.login.tr(),
                                     style: AppTextStyle.txtStyle.copyWith(

@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+import '../../../gen/locale_keys.g.dart';
 import '../data/repo/auth_repo.dart';
 part 'auth_state.dart';
 
@@ -50,7 +52,7 @@ class AuthCubit extends Cubit<AuthState> {
       switch (statusCode) {
         case 400:
           final serverData = e.response?.data;
-          String serverMessage = "Invalid data";
+          String serverMessage = LocaleKeys.case_400.tr();
           if (serverData is Map) {
             serverMessage = serverData['message'] ?? serverData['error'] ?? "Invalid data";
           } else if (serverData is String) {
@@ -60,31 +62,31 @@ class AuthCubit extends Cubit<AuthState> {
           break;
         case 401:
           final serverData = e.response?.data;
-          String serverMessage = "Wrong phone or password";
+          String serverMessage = LocaleKeys.case_401.tr();
           if (serverData is Map) {
             serverMessage = serverData['message'] ?? serverData['error'] ?? "Wrong phone or password";
           }
           emit(AuthError(serverMessage));
           break;
         case 404:
-          emit(AuthError("User not found"));
+          emit(AuthError(LocaleKeys.case_404.tr()));
           break;
         case 500:
-          emit(AuthError("Server error, try again"));
+          emit(AuthError(LocaleKeys.case_500.tr()));
           break;
         case 302:
-          emit(AuthError("Server redirection error"));
+          emit(AuthError(LocaleKeys.case_302.tr()));
           break;
         default:
           if (e.response == null) {
-            emit(AuthError("No internet connection"));
+            emit(AuthError(LocaleKeys.no_internet.tr()));
           } else {
-            emit(AuthError("Something went wrong"));
+            emit(AuthError(LocaleKeys.smth_went_wrong.tr()));
           }
       }
 
     } catch (e) {
-      emit(AuthError("Unexpected error occurred"));
+      emit(AuthError(LocaleKeys.unexp_error.tr()));
     }
   }
 
@@ -112,7 +114,7 @@ class AuthCubit extends Cubit<AuthState> {
       final messageValue = (data['message'] ?? "").toString().toLowerCase();
 
       // Flexible success check
-      final isSuccess = statusValue == "true" || 
+      final isSuccess = statusValue == "true" ||
                         statusValue == "success" || 
                         statusValue == "1" ||
                         messageValue.contains("success") || 
@@ -122,15 +124,15 @@ class AuthCubit extends Cubit<AuthState> {
         emit(RegisterSuccess());
       } else {
         if (messageValue.contains("email") && (messageValue.contains("already") || messageValue.contains("exist"))) {
-          emit(RegisterError("Email already registered"));
+          emit(RegisterError(LocaleKeys.case_400_email.tr()));
         } else if (messageValue.contains("username") && (messageValue.contains("already") || messageValue.contains("taken"))) {
-          emit(RegisterError("Username already taken"));
+          emit(RegisterError(LocaleKeys.case_400_userName.tr()));
         } else if (messageValue.contains("phone") && (messageValue.contains("already") || messageValue.contains("used") || messageValue.contains("exist"))) {
-          emit(RegisterError("Phone already used"));
+          emit(RegisterError(LocaleKeys.case_400_phone.tr()));
         } else if (password.length < 8) {
-          emit(RegisterError("Weak password"));
+          emit(RegisterError(LocaleKeys.weak_pass.tr()));
         } else {
-          emit(RegisterError(messageValue.isEmpty ? "Something went wrong" : (data['message'] ?? "Unknown error")));
+          emit(RegisterError(messageValue.isEmpty ? LocaleKeys.smth_went_wrong.tr() : (data['message'] ?? "Unknown error")));
         }
       }
 
@@ -144,10 +146,10 @@ class AuthCubit extends Cubit<AuthState> {
       switch (statusCode) {
         case 400:
           final serverData = e.response?.data;
-          String serverMessage = "Invalid data";
+          String serverMessage = LocaleKeys.case_400.tr();
           
           if (serverData is Map) {
-            serverMessage = serverData['message'] ?? serverData['error'] ?? "Invalid data";
+            serverMessage = serverData['message'] ?? serverData['error'] ?? LocaleKeys.case_400.tr();
           } else if (serverData is String) {
             serverMessage = serverData;
           }
@@ -155,29 +157,29 @@ class AuthCubit extends Cubit<AuthState> {
           final lowerMessage = serverMessage.toLowerCase();
 
           if (lowerMessage.contains("email") && (lowerMessage.contains("already") || lowerMessage.contains("exist"))) {
-            emit(RegisterError("Email already registered"));
+            emit(RegisterError(LocaleKeys.case_400_email.tr()));
           } else if (lowerMessage.contains("username") && (lowerMessage.contains("already") || lowerMessage.contains("taken"))) {
-            emit(RegisterError("Username already taken"));
+            emit(RegisterError(LocaleKeys.case_400_userName.tr()));
           } else if (lowerMessage.contains("phone") && (lowerMessage.contains("already") || lowerMessage.contains("used") || lowerMessage.contains("exist"))) {
-            emit(RegisterError("Phone already used"));
+            emit(RegisterError(LocaleKeys.case_400_phone.tr()));
           } else {
             emit(RegisterError(serverMessage));
           }
           break;
         case 401:
-          emit(RegisterError("Unauthorized"));
+          emit(RegisterError(LocaleKeys.case_401.tr()));
           break;
         case 500:
-          emit(RegisterError("Server error"));
+          emit(RegisterError(LocaleKeys.case_500_reg.tr()));
           break;
         default:
           if (e.type == DioExceptionType.connectionTimeout ||
               e.type == DioExceptionType.receiveTimeout) {
-            emit(RegisterError("Connection timeout, try again"));
+            emit(RegisterError(LocaleKeys.connection_timeout.tr()));
           } else if (e.type == DioExceptionType.connectionError) {
-            emit(RegisterError("No internet connection"));
+            emit(RegisterError(LocaleKeys.no_internet.tr()));
           } else {
-            emit(RegisterError("Something went wrong"));
+            emit(RegisterError(LocaleKeys.smth_went_wrong.tr()));
           }
       }
 
@@ -198,11 +200,32 @@ class AuthCubit extends Cubit<AuthState> {
         phoneNumber: phoneNumber,
       );
 
-      if (data['status'] == true) {
+      debugPrint("FORGOT PASSWORD RESPONSE: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") ||
+                        messageValue.contains("sent");
+
+      if (isSuccess) {
         emit(ForgotPasswordSuccess());
       } else {
-        emit(ForgotPasswordError(data['message'] ?? "Failed"));
+        emit(ForgotPasswordError(data['message'] ?? "Failed to send code"));
       }
+    } on DioException catch (e) {
+      debugPrint("FORGOT PASSWORD ERROR: ${e.response?.data}");
+      final serverData = e.response?.data;
+      String serverMessage = "Failed to send code";
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "Failed to send code";
+      } else if (serverData != null && serverData.toString().isNotEmpty) {
+        serverMessage = serverData.toString();
+      }
+      emit(ForgotPasswordError(serverMessage));
     } catch (e) {
       emit(ForgotPasswordError("Something went wrong"));
     }
@@ -272,13 +295,35 @@ class AuthCubit extends Cubit<AuthState> {
         confirmPassword: confirmPassword
       );
 
-      if (data['status'] == true) {
+      debugPrint("RESET PASSWORD RESPONSE: $data");
+
+      final statusValue = data['status']?.toString().toLowerCase();
+      final messageValue = (data['message'] ?? "").toString().toLowerCase();
+
+      final isSuccess = statusValue == "true" || 
+                        statusValue == "success" || 
+                        statusValue == "1" ||
+                        messageValue.contains("success") ||
+                        messageValue.contains("reset") ||
+                        messageValue.contains("changed");
+
+      if (isSuccess) {
         emit(ResetPasswordSuccess());
       } else {
-        emit(ResetPasswordError(data['message']));
+        emit(ResetPasswordError(data['message'] ?? "Reset failed"));
       }
+    } on DioException catch (e) {
+      debugPrint("RESET PASSWORD ERROR: ${e.response?.data}");
+      final serverData = e.response?.data;
+      String serverMessage = "Reset failed";
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "Reset failed";
+      } else if (serverData != null && serverData.toString().isNotEmpty) {
+        serverMessage = serverData.toString();
+      }
+      emit(ResetPasswordError(serverMessage));
     } catch (e) {
-      emit(ResetPasswordError("Reset failed"));
+      emit(ResetPasswordError("Something went wrong"));
     }
   }
 
