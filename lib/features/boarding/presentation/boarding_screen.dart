@@ -1,3 +1,4 @@
+import 'package:cosmetics_avon/core/routing/app_routes.dart';
 import 'package:cosmetics_avon/core/theme/colors.dart';
 import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../gen/locale_keys.g.dart';
-import '../../auth/presentation/login_screen.dart';
 import '../model/data_list.dart';
 
 class BoardingScreen extends StatefulWidget {
@@ -103,11 +103,9 @@ class _BoardingScreenState extends State<BoardingScreen> {
                   color: AppColors.Secondary,
                   txt: LocaleKeys.boarding_button.tr(),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => LoginScreen(),
-                      ),
+                    Navigator.pushNamedAndRemoveUntil(
+                      context, AppRoutes.login,
+                      (route) => false,
                     );
                   },
                 )
@@ -121,7 +119,6 @@ class _BoardingScreenState extends State<BoardingScreen> {
                     width: 50.w,
                     height: 50.h,
                     decoration: BoxDecoration(
-
                       color: AppColors.Secondary,
                       borderRadius: BorderRadius.circular(10),
                     ),

@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../gen/locale_keys.g.dart';
 import '../data/repo/auth_repo.dart';
@@ -12,6 +12,14 @@ class AuthCubit extends Cubit<AuthState> {
   final AuthRepo repo;
 
   AuthCubit(this.repo) : super(AuthInitial());
+
+  bool _isUnverified(String message) {
+    final msg = message.toLowerCase();
+    return msg.contains("verify") || 
+           msg.contains("verified") || 
+           msg.contains("confirm") ||
+           msg.contains("activation");
+  }
 
   Future login({
     required String countryCode,
@@ -40,33 +48,47 @@ class AuthCubit extends Cubit<AuthState> {
                         data['token'] != null;
 
       if (isSuccess) {
+        final token = data['token'];
+
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString(
+          'token',
+          token,
+        );
+
         emit(AuthSuccess());
       } else {
-        emit(AuthError(data['message'] ?? "Login failed"));
+        if (_isUnverified(messageValue)) {
+          emit(AuthUnverified());
+        } else {
+          emit(AuthError(data['message'] ?? "Login failed"));
+        }
       }
 
     } on DioException catch (e) {
       debugPrint("LOGIN ERROR: ${e.response?.data}");
       final statusCode = e.response?.statusCode;
+      final serverData = e.response?.data;
+      
+      String serverMessage = "";
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "";
+      } else if (serverData is String) {
+        serverMessage = serverData;
+      }
+
+      if (_isUnverified(serverMessage)) {
+        emit(AuthUnverified());
+        return;
+      }
 
       switch (statusCode) {
         case 400:
-          final serverData = e.response?.data;
-          String serverMessage = LocaleKeys.case_400.tr();
-          if (serverData is Map) {
-            serverMessage = serverData['message'] ?? serverData['error'] ?? "Invalid data";
-          } else if (serverData is String) {
-            serverMessage = serverData;
-          }
-          emit(AuthError(serverMessage));
+          emit(AuthError(serverMessage.isEmpty ? LocaleKeys.case_400.tr() : serverMessage));
           break;
         case 401:
-          final serverData = e.response?.data;
-          String serverMessage = LocaleKeys.case_401.tr();
-          if (serverData is Map) {
-            serverMessage = serverData['message'] ?? serverData['error'] ?? "Wrong phone or password";
-          }
-          emit(AuthError(serverMessage));
+          emit(AuthError(serverMessage.isEmpty ? LocaleKeys.case_401.tr() : serverMessage));
           break;
         case 404:
           emit(AuthError(LocaleKeys.case_404.tr()));
@@ -81,7 +103,7 @@ class AuthCubit extends Cubit<AuthState> {
           if (e.response == null) {
             emit(AuthError(LocaleKeys.no_internet.tr()));
           } else {
-            emit(AuthError(LocaleKeys.smth_went_wrong.tr()));
+            emit(AuthError(serverMessage.isEmpty ? LocaleKeys.smth_went_wrong.tr() : serverMessage));
           }
       }
 
@@ -142,49 +164,47 @@ class AuthCubit extends Cubit<AuthState> {
       debugPrint("MESSAGE: ${e.message}");
 
       final statusCode = e.response?.statusCode;
+      final serverData = e.response?.data;
+      String serverMessage = "";
+      
+      if (serverData is Map) {
+        serverMessage = serverData['message'] ?? serverData['error'] ?? "";
+      } else if (serverData is String) {
+        serverMessage = serverData;
+      }
 
-      switch (statusCode) {
-        case 400:
-          final serverData = e.response?.data;
-          String serverMessage = LocaleKeys.case_400.tr();
-          
-          if (serverData is Map) {
-            serverMessage = serverData['message'] ?? serverData['error'] ?? LocaleKeys.case_400.tr();
-          } else if (serverData is String) {
-            serverMessage = serverData;
-          }
+      final lowerMessage = serverMessage.toLowerCase();
 
-          final lowerMessage = serverMessage.toLowerCase();
-
-          if (lowerMessage.contains("email") && (lowerMessage.contains("already") || lowerMessage.contains("exist"))) {
-            emit(RegisterError(LocaleKeys.case_400_email.tr()));
-          } else if (lowerMessage.contains("username") && (lowerMessage.contains("already") || lowerMessage.contains("taken"))) {
-            emit(RegisterError(LocaleKeys.case_400_userName.tr()));
-          } else if (lowerMessage.contains("phone") && (lowerMessage.contains("already") || lowerMessage.contains("used") || lowerMessage.contains("exist"))) {
-            emit(RegisterError(LocaleKeys.case_400_phone.tr()));
-          } else {
-            emit(RegisterError(serverMessage));
-          }
-          break;
-        case 401:
-          emit(RegisterError(LocaleKeys.case_401.tr()));
-          break;
-        case 500:
-          emit(RegisterError(LocaleKeys.case_500_reg.tr()));
-          break;
-        default:
-          if (e.type == DioExceptionType.connectionTimeout ||
-              e.type == DioExceptionType.receiveTimeout) {
-            emit(RegisterError(LocaleKeys.connection_timeout.tr()));
-          } else if (e.type == DioExceptionType.connectionError) {
-            emit(RegisterError(LocaleKeys.no_internet.tr()));
-          } else {
-            emit(RegisterError(LocaleKeys.smth_went_wrong.tr()));
-          }
+      if (lowerMessage.contains("email") && (lowerMessage.contains("already") || lowerMessage.contains("exist"))) {
+        emit(RegisterError(LocaleKeys.case_400_email.tr()));
+      } else if (lowerMessage.contains("username") && (lowerMessage.contains("already") || lowerMessage.contains("taken"))) {
+        emit(RegisterError(LocaleKeys.case_400_userName.tr()));
+      } else if (lowerMessage.contains("phone") && (lowerMessage.contains("already") || lowerMessage.contains("used") || lowerMessage.contains("exist"))) {
+        emit(RegisterError(LocaleKeys.case_400_phone.tr()));
+      } else if (serverMessage.isNotEmpty) {
+        emit(RegisterError(serverMessage));
+      } else {
+        switch (statusCode) {
+          case 401:
+            emit(RegisterError(LocaleKeys.case_401.tr()));
+            break;
+          case 500:
+            emit(RegisterError(LocaleKeys.case_500_reg.tr()));
+            break;
+          default:
+            if (e.type == DioExceptionType.connectionTimeout ||
+                e.type == DioExceptionType.receiveTimeout) {
+              emit(RegisterError(LocaleKeys.connection_timeout.tr()));
+            } else if (e.type == DioExceptionType.connectionError) {
+              emit(RegisterError(LocaleKeys.no_internet.tr()));
+            } else {
+              emit(RegisterError(LocaleKeys.smth_went_wrong.tr()));
+            }
+        }
       }
 
     } catch (e) {
-      emit(RegisterError("Unexpected error"));
+      emit(RegisterError(LocaleKeys.unexp_error.tr()));
     }
   }
 
@@ -288,11 +308,15 @@ class AuthCubit extends Cubit<AuthState> {
     emit(ResetPasswordLoading());
 
     try {
+      debugPrint("RESET PASSWORD DATA SENDING:");
+      debugPrint("CountryCode: $countryCode");
+      debugPrint("PhoneNumber: $phoneNumber");
+
       final data = await repo.resetPassword(
         countryCode: countryCode,
         phoneNumber: phoneNumber,
         newPassword: newPassword,
-        confirmPassword: confirmPassword
+        confirmPassword: confirmPassword,
       );
 
       debugPrint("RESET PASSWORD RESPONSE: $data");
@@ -300,30 +324,179 @@ class AuthCubit extends Cubit<AuthState> {
       final statusValue = data['status']?.toString().toLowerCase();
       final messageValue = (data['message'] ?? "").toString().toLowerCase();
 
-      final isSuccess = statusValue == "true" || 
-                        statusValue == "success" || 
-                        statusValue == "1" ||
-                        messageValue.contains("success") ||
-                        messageValue.contains("reset") ||
-                        messageValue.contains("changed");
+      final isSuccess =
+          statusValue == "true" ||
+              statusValue == "success" ||
+              statusValue == "1" ||
+              messageValue.contains("success") ||
+              messageValue.contains("reset") ||
+              messageValue.contains("changed");
 
       if (isSuccess) {
         emit(ResetPasswordSuccess());
       } else {
-        emit(ResetPasswordError(data['message'] ?? "Reset failed"));
+        emit(
+          ResetPasswordError(
+            data['message'] ?? "Reset password failed",
+            // TODO: TRANSLATE RESET PASSWORD FAILED
+          ),
+        );
       }
+
     } on DioException catch (e) {
-      debugPrint("RESET PASSWORD ERROR: ${e.response?.data}");
+
+      debugPrint("RESET PASSWORD STATUS CODE: ${e.response?.statusCode}");
+      debugPrint("RESET PASSWORD ERROR DATA: ${e.response?.data}");
+
+      final statusCode = e.response?.statusCode;
       final serverData = e.response?.data;
-      String serverMessage = "Reset failed";
+
+      String serverMessage = "";
+
       if (serverData is Map) {
-        serverMessage = serverData['message'] ?? serverData['error'] ?? "Reset failed";
-      } else if (serverData != null && serverData.toString().isNotEmpty) {
-        serverMessage = serverData.toString();
+        serverMessage =
+            serverData['message'] ??
+                serverData['error'] ??
+                "";
+      } else if (serverData is String) {
+        serverMessage = serverData;
       }
-      emit(ResetPasswordError(serverMessage));
+
+      final lowerMessage = serverMessage.toLowerCase();
+
+      // Password mismatch
+      if (lowerMessage.contains("match")) {
+        emit(
+          ResetPasswordError(
+            "Passwords do not match",
+            // TODO: TRANSLATE PASSWORDS DO NOT MATCH
+          ),
+        );
+      }
+
+      // Weak password
+      else if (
+      lowerMessage.contains("weak") ||
+          lowerMessage.contains("uppercase") ||
+          lowerMessage.contains("special") ||
+          lowerMessage.contains("number") ||
+          lowerMessage.contains("8")
+      ) {
+        emit(
+          ResetPasswordError(
+            "Password is too weak",
+            // TODO: TRANSLATE WEAK PASSWORD
+          ),
+        );
+      }
+
+      // Phone missing
+      else if (lowerMessage.contains("phone")) {
+        emit(
+          ResetPasswordError(
+            "Phone number is required",
+            // TODO: TRANSLATE PHONE NUMBER REQUIRED
+          ),
+        );
+      }
+
+      // Country code missing
+      else if (lowerMessage.contains("country")) {
+        emit(
+          ResetPasswordError(
+            "Country code is required",
+            // TODO: TRANSLATE COUNTRY CODE REQUIRED
+          ),
+        );
+      }
+
+      else {
+        switch (statusCode) {
+
+          case 400:
+            emit(
+              ResetPasswordError(
+                serverMessage.isEmpty
+                    ? "Invalid request"
+                    : serverMessage,
+                // TODO: TRANSLATE INVALID REQUEST
+              ),
+            );
+            break;
+
+          case 401:
+            emit(
+              ResetPasswordError(
+                "Unauthorized request",
+                // TODO: TRANSLATE UNAUTHORIZED REQUEST
+              ),
+            );
+            break;
+
+          case 404:
+            emit(
+              ResetPasswordError(
+                "User not found",
+                // TODO: TRANSLATE USER NOT FOUND
+              ),
+            );
+            break;
+
+          case 500:
+            emit(
+              ResetPasswordError(
+                "Server error, please try again later",
+                // TODO: TRANSLATE SERVER ERROR
+              ),
+            );
+            break;
+
+          default:
+
+            if (e.type == DioExceptionType.connectionTimeout ||
+                e.type == DioExceptionType.receiveTimeout) {
+
+              emit(
+                ResetPasswordError(
+                  "Connection timeout",
+                  // TODO: TRANSLATE CONNECTION TIMEOUT
+                ),
+              );
+
+            } else if (e.type == DioExceptionType.connectionError) {
+
+              emit(
+                ResetPasswordError(
+                  "No internet connection",
+                  // TODO: TRANSLATE NO INTERNET
+                ),
+              );
+
+            } else {
+
+              emit(
+                ResetPasswordError(
+                  serverMessage.isEmpty
+                      ? "Something went wrong"
+                      : serverMessage,
+                  // TODO: TRANSLATE SOMETHING WENT WRONG
+                ),
+              );
+
+            }
+        }
+      }
+
     } catch (e) {
-      emit(ResetPasswordError("Something went wrong"));
+
+      debugPrint("RESET PASSWORD UNKNOWN ERROR: $e");
+
+      emit(
+        ResetPasswordError(
+          "Unexpected error occurred",
+          // TODO: TRANSLATE UNEXPECTED ERROR
+        ),
+      );
     }
   }
 

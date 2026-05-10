@@ -11,4 +11,7 @@ class AppColors
   static Color Error = Color(0xFFF44336);
   static Color Disabled = Color(0xFF616161);
   static Color PinBorder = Color(0xFF898992);
+  static Color SearchBar = Color(0xFFB3B3C1);
+  static Color GridPrices = Color(0xFF70839C);
+  static Color TxtCart = Color(0xFF434C6D);
 }

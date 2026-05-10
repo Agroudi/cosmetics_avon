@@ -14,17 +14,53 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/add_cart.svg
+  String get addCart => 'assets/icons/add_cart.svg';
+
   /// File path: assets/icons/auth_logo.svg
   String get authLogo => 'assets/icons/auth_logo.svg';
 
   /// File path: assets/icons/back_button.svg
   String get backButton => 'assets/icons/back_button.svg';
 
+  /// File path: assets/icons/cart.svg
+  String get cart => 'assets/icons/cart.svg';
+
+  /// File path: assets/icons/categories.svg
+  String get categories => 'assets/icons/categories.svg';
+
+  /// File path: assets/icons/checkout.svg
+  String get checkout => 'assets/icons/checkout.svg';
+
+  /// File path: assets/icons/edit_info.svg
+  String get editInfo => 'assets/icons/edit_info.svg';
+
   /// File path: assets/icons/eye_false.svg
   String get eyeFalse => 'assets/icons/eye_false.svg';
 
   /// File path: assets/icons/eye_true.svg
   String get eyeTrue => 'assets/icons/eye_true.svg';
+
+  /// File path: assets/icons/home.svg
+  String get home => 'assets/icons/home.svg';
+
+  /// File path: assets/icons/logout.svg
+  String get logout => 'assets/icons/logout.svg';
+
+  /// File path: assets/icons/order.svg
+  String get order => 'assets/icons/order.svg';
+
+  /// File path: assets/icons/order_history.svg
+  String get orderHistory => 'assets/icons/order_history.svg';
+
+  /// File path: assets/icons/profile.svg
+  String get profile => 'assets/icons/profile.svg';
+
+  /// File path: assets/icons/search.svg
+  String get search => 'assets/icons/search.svg';
+
+  /// File path: assets/icons/settings.svg
+  String get settings => 'assets/icons/settings.svg';
 
   /// File path: assets/icons/splash.png
   AssetGenImage get splash => const AssetGenImage('assets/icons/splash.png');
@@ -38,16 +74,39 @@ class $AssetsIconsGen {
   /// File path: assets/icons/swoosh.svg
   String get swoosh => 'assets/icons/swoosh.svg';
 
+  /// File path: assets/icons/voucher.svg
+  String get voucher => 'assets/icons/voucher.svg';
+
+  /// File path: assets/icons/wallet.svg
+  String get wallet => 'assets/icons/wallet.svg';
+
+  /// File path: assets/icons/delete.svg
+  String get delete => 'assets/icons/delete.svg';
+
   /// List of all assets
   List<dynamic> get values => [
+    addCart,
     authLogo,
     backButton,
+    cart,
+    categories,
+    checkout,
+    editInfo,
     eyeFalse,
     eyeTrue,
+    home,
+    logout,
+    order,
+    orderHistory,
+    profile,
+    search,
+    settings,
     splash,
     splashLogo,
     successDialouge,
     swoosh,
+    voucher,
+    wallet,
   ];
 }
 

@@ -18,7 +18,6 @@ import '../../../gen/locale_keys.g.dart';
 import '../cubit/auth_cubit.dart';
 import '../data/repo/auth_repo_impl.dart';
 import '../data/services/auth_api_services.dart';
-import '../widgets/dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -122,7 +121,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       r'^[\w\.-]+@[\w\.-]+\.com$',
     ).hasMatch(email);
 
-    final isPasswordValid = password.length >= 8;
+    final isPasswordValid =
+        password.length >= 8 &&
+            RegExp(r'[A-Z]').hasMatch(password) &&
+            RegExp(r'[0-9]').hasMatch(password) &&
+            RegExp(r'[!@#\$&*~%^()_\-+=<>?/{}[\]|]').hasMatch(password);
 
     final isConfirmPasswordValid =
         confirmPassword == password && confirmPassword.isNotEmpty;
@@ -316,15 +319,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 if (value == null || value.isEmpty) {
                                   return LocaleKeys.password_required.tr();
                                 }
+
                                 if (value.length < 8) {
                                   return LocaleKeys.min_8_char.tr();
                                 }
+
                                 if (!RegExp(r'[A-Z]').hasMatch(value)) {
                                   return LocaleKeys.must_upper_case.tr();
                                 }
+
                                 if (!RegExp(r'[0-9]').hasMatch(value)) {
                                   return LocaleKeys.must_number.tr();
                                 }
+
+                                if (!RegExp(r'[!@#\$&*~%^()_\-+=<>?/{}[\]|]').hasMatch(value)) {
+                                  return LocaleKeys.must_special.tr();
+                                }
+
+                                return null;
                               },
                             ),
 

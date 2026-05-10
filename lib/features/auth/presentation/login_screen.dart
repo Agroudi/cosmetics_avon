@@ -1,10 +1,10 @@
 import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:cosmetics_avon/features/auth/cubit/auth_cubit.dart';
+import 'package:cosmetics_avon/features/auth/presentation/verification_screen.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_form_field.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_phone_field.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/routing/app_routes.dart';
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return LocaleKeys.short_uae_number.tr();
         }
         if (value.length > 9) {
-          return LocaleKeys.long_uae_number;
+          return LocaleKeys.long_uae_number.tr();
         }
         break;
 
@@ -135,7 +135,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       autoCloseDuration: const Duration(seconds: 5),
                     );
 
-                    Navigator.pushNamed(context, AppRoutes.home);
+                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (route) => false);
+                  }
+
+                  if (state is AuthUnverified) {
+                    toastification.show(
+                      context: context,
+                      type: ToastificationType.info,
+                      title: const Text("Account isn't verified. Please verify your account first"),
+                      autoCloseDuration: const Duration(seconds: 5),
+                    );
+
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.verification,
+                      arguments: {
+                        "type": VerificationType.phone,
+                        "value": phoneController.text.trim(),
+                        "countryCode": countryCode,
+                        "phoneNumber": phoneController.text.trim(),
+                        "isFromLogin": true,
+                      },
+                    );
                   }
 
                   if (state is AuthError) {

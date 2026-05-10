@@ -7,7 +7,7 @@ class AppLoading {
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        return const _LoadingWidget();
+        return const LoadingWidget();
       },
     );
   }
@@ -17,8 +17,8 @@ class AppLoading {
   }
 }
 
-class _LoadingWidget extends StatelessWidget {
-  const _LoadingWidget();
+class LoadingWidget extends StatelessWidget {
+  const LoadingWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

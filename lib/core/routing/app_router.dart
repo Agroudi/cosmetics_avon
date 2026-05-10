@@ -2,10 +2,14 @@ import 'package:cosmetics_avon/features/auth/presentation/create_password_screen
 import 'package:cosmetics_avon/features/boarding/presentation/boarding_screen.dart';
 import 'package:cosmetics_avon/features/splash/presentaion/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/verification_screen.dart';
+import '../../features/home/cubit/home_cubit.dart';
+import '../../features/home/data/repo/home_repo_impl.dart';
+import '../../features/home/data/services/home_api_service.dart';
 import '../../features/home/presentation/home_screen.dart';
 import 'app_routes.dart';
 
@@ -28,7 +32,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
 
       case AppRoutes.createPassword:
-        return MaterialPageRoute(builder: (_) => const CreatePasswordScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CreatePasswordScreen(),
+        );
 
       case AppRoutes.verification:
         final args = settings.arguments as Map;
@@ -38,11 +45,23 @@ class AppRouter {
             type: args['type'],
             value: args['value'],
             phoneNumber: args['phoneNumber'],
+            isFromLogin: args['isFromLogin'] ?? false,
           ),
         );
 
       case AppRoutes.home:
-        return MaterialPageRoute(builder: (_) => HomeScreen());
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+
+            create: (_) => HomeCubit(
+              HomeRepoImpl(
+                HomeApiService(),
+              ),
+            )..getHomeData(),
+
+            child: const HomeScreen(),
+          ),
+        );
 
       default:
         return MaterialPageRoute(

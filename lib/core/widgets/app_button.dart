@@ -9,7 +9,7 @@ class AppButton extends StatelessWidget {
   AppButton({super.key, required this.txt, this.onPressed, this.color});
 
   final String txt;
-  Color? color;
+  final Color? color;
   final VoidCallback? onPressed;
 
   @override

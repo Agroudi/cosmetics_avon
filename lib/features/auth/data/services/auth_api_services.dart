@@ -62,14 +62,23 @@ class AuthApiService {
     required String newPassword,
     required String confirmPassword
   }) async {
+    // Sending both lowercase and PascalCase keys to ensure compatibility with backend validation
+    final Map<String, dynamic> data = {
+      "countryCode": countryCode,
+      "phoneNumber": phoneNumber,
+      "newPassword": newPassword,
+      "confirmPassword": confirmPassword,
+      "CountryCode": countryCode,
+      "PhoneNumber": phoneNumber,
+      "NewPassword": newPassword,
+      "ConfirmPassword": confirmPassword,
+    };
+
+    debugPrint("RESET PASSWORD API SENDING: $data");
+
     return await DioHelper.post(
       endPoint: 'Auth/reset-password',
-      data: {
-        "countryCode": countryCode,
-        "phoneNumber": phoneNumber,
-        "newPassword": newPassword,
-        "confirmPassword": confirmPassword
-      },
+      data: data,
     );
   }
 

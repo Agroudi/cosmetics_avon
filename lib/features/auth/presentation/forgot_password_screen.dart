@@ -62,7 +62,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           return LocaleKeys.short_uae_number.tr();
         }
         if (value.length > 9) {
-          return LocaleKeys.long_uae_number;
+          return LocaleKeys.long_uae_number.tr();
         }
         break;
 
@@ -138,7 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           "type": VerificationType.phone,
                           "value": phoneController.text.trim(),
                           "countryCode": selectedCountryCode,
-                          "PhoneNumber": phoneController.text.trim(),
+                          "phoneNumber": phoneController.text.trim(),
                         },
                       );
                     }

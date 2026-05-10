@@ -29,6 +29,7 @@ class VerificationScreen extends StatefulWidget {
   final String value;
   final String? countryCode;
   final String? phoneNumber;
+  final bool isFromLogin;
 
   const VerificationScreen({
     super.key,
@@ -36,6 +37,7 @@ class VerificationScreen extends StatefulWidget {
     required this.value,
     this.countryCode,
     this.phoneNumber,
+    this.isFromLogin = false,
   });
 
   @override
@@ -47,14 +49,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
   final TextEditingController otpController = TextEditingController();
 
   int seconds = 30;
-  int resendAttempt = -1;
+  int resendAttempt = 0;
   final List<int> backoffTimes = [30, 60, 120, 300];
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    if (otpExpiryTime == null) {
+    if (otpExpiryTime == null)
+    {
       otpExpiryTime = DateTime.now().add(const Duration(seconds: 30));
     }
 
@@ -124,17 +127,20 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     context: context,
                     barrierDismissible: false,
                     builder: (_) {
-                      return SharedDialog(
-                        title: LocaleKeys.reg_title_dialog.tr(),
-                        description: LocaleKeys.reg_desc_dialog.tr(),
-                        buttonText: LocaleKeys.reg_button_dialog.tr(),
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            AppRoutes.login,
-                                (route) => false,
-                          );
-                        },
+                      return PopScope(
+                        canPop: false,
+                        child: SharedDialog(
+                          title: LocaleKeys.reg_title_dialog.tr(),
+                          description: LocaleKeys.reg_desc_dialog.tr(),
+                          buttonText: LocaleKeys.reg_button_dialog.tr(),
+                          onPressed: () {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              AppRoutes.login,
+                                  (route) => false,
+                            );
+                          },
+                        ),
                       );
                     },
                   );
@@ -152,8 +158,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     arguments: {
                       "type": widget.type,
                       "value": widget.value,
-                      "countryCode": widget.countryCode,
-                      "phoneNumber": widget.phoneNumber,
+                      "countryCode": widget.countryCode ?? "+20",
+                      "phoneNumber": widget.type == VerificationType.phone
+                          ? widget.value
+                          : widget.phoneNumber,
                     },
                   );
                 }
@@ -223,6 +231,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               ),
                             ),
                             SizedBox(height: 40.h),
+                            if (!widget.isFromLogin)
                             Align(
                               alignment: AlignmentGeometry.centerLeft,
                               child: InkWell(
