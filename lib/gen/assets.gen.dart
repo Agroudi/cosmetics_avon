@@ -35,6 +35,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/delete.svg
   String get delete => 'assets/icons/delete.svg';
 
+  /// File path: assets/icons/down.svg
+  String get down => 'assets/icons/down.svg';
+
   /// File path: assets/icons/edit_info.svg
   String get editInfo => 'assets/icons/edit_info.svg';
 
@@ -95,6 +98,7 @@ class $AssetsIconsGen {
     categories,
     checkout,
     delete,
+    down,
     editInfo,
     eyeFalse,
     eyeTrue,
@@ -132,8 +136,18 @@ class $AssetsImagesGen {
   /// File path: assets/images/login.png
   AssetGenImage get login => const AssetGenImage('assets/images/login.png');
 
+  /// File path: assets/images/mansoura.png
+  AssetGenImage get mansoura =>
+      const AssetGenImage('assets/images/mansoura.png');
+
   /// List of all assets
-  List<dynamic> get values => [boarding0, boarding1, boarding2, login];
+  List<dynamic> get values => [
+    boarding0,
+    boarding1,
+    boarding2,
+    login,
+    mansoura,
+  ];
 }
 
 class $AssetsLottieGen {

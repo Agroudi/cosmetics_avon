@@ -1,6 +1,7 @@
-import 'package:cosmetics_avon/features/auth/presentation/create_password_screen.dart';
-import 'package:cosmetics_avon/features/boarding/presentation/boarding_screen.dart';
-import 'package:cosmetics_avon/features/splash/presentaion/splash_screen.dart';
+import '../../features/auth/presentation/create_password_screen.dart';
+import '../../features/boarding/presentation/boarding_screen.dart';
+import '../../features/checkout/presentation/checkout_screen.dart';
+import '../../features/splash/presentaion/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/auth/presentation/login_screen.dart';
@@ -61,6 +62,11 @@ class AppRouter {
 
             child: const HomeScreen(),
           ),
+        );
+
+      case AppRoutes.checkout:
+        return MaterialPageRoute(
+          builder: (_) => const CheckoutScreen(),
         );
 
       default:

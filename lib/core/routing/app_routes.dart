@@ -7,4 +7,5 @@ class AppRoutes {
   static const verification = '/verification';
   static const home = '/home';
   static const createPassword = '/create-password';
+  static const checkout = '/checkout';
 }

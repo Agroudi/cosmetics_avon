@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:toastification/toastification.dart';
 
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_style.dart';
 import '../../../gen/assets.gen.dart';
@@ -58,7 +59,10 @@ class CartScreen extends StatelessWidget {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: SvgPicture.asset(Assets.icons.checkout),
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.checkout),
+                          child: SvgPicture.asset(Assets.icons.checkout),
+                        ),
                       ),
                     ],
                   ),
