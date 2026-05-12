@@ -33,31 +33,69 @@ project_root/
 │   ├── images/            # App images & product assets
 │   ├── icons/             # SVG icons
 │   ├── fonts/             # Custom fonts
+│   ├── lottie/            # Lottie animations
 │   └── translations/      # Localization files (AR / EN)
 │
 ├── lib/
 │   ├── core/
+│   │   ├── cubit/         # Global cubits
+│   │   ├── helpers/       # Helper classes & utilities
 │   │   ├── routing/       # AppRouter & route management
 │   │   ├── theme/         # Colors, text styles
 │   │   ├── widgets/       # Global reusable widgets
 │   │   └── services/      # DioHelper & API config
 │   │
 │   ├── features/
-│   │   ├── auth/
-│   │   │   ├── cubit/     # AuthCubit (Login, Register, OTP, Reset)
+│   │   ├── auth/          # Authentication & user identity
+│   │   │   ├── cubit/     # AuthCubit logic
 │   │   │   ├── data/
-│   │   │   │   ├── repo/  # AuthRepo & implementation
-│   │   │   │   ├── services/ # API services
-│   │   │   │   └── local/ # Local storage (token)
-│   │   │   └── presentation/ # Auth screens UI
+│   │   │   │   ├── models/   # Data models
+│   │   │   │   ├── repo/     # AuthRepo & implementations
+│   │   │   │   └── services/ # Auth API services
+│   │   │   ├── presentation/ # Auth screens
+│   │   │   └── widgets/      # Auth-specific widgets
 │   │   │
-│   │   ├── home/          # Home screen (OnProgress)
-│   │   ├── product/       # Product details & listing (OnProgress)
-│   │   ├── cart/          # Cart system (OnProgress)
-│   │   ├── categories/    # Categories browsing (OnProgress)
-│   │   ├── profile/       # User profile (Planned)
-│   │   └── layout/        # Bottom Navigation Bar (OnProgress)
+│   │   ├── home/          # Home screen content
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   ├── repo/
+│   │   │   │   └── services/
+│   │   │   ├── presentation/
+│   │   │   └── widgets/
+│   │   │
+│   │   ├── cart/          # Cart system
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   ├── repo/
+│   │   │   │   └── services/
+│   │   │   ├── presentation/
+│   │   │   └── widgets/
+│   │   │
+│   │   ├── categories/    # Product categories
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   ├── repo/
+│   │   │   │   └── services/
+│   │   │   ├── presentation/
+│   │   │   └── widgets/
+│   │   │
+│   │   ├── profile/       # User profile & settings
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   ├── repo/
+│   │   │   │   └── services/
+│   │   │   ├── presentation/
+│   │   │   └── widgets/
+│   │   │
+│   │   ├── splash/        # Splash screen & initial logic
+│   │   ├── boarding/      # Onboarding screens
+│   │   └── checkout/      # Payment & order completion
 │   │
+│   ├── cosmetics_app.dart # Main app widget
 │   └── main.dart          # App entry point
 ```
 
@@ -140,6 +178,13 @@ dependencies:
   easy_localization:
   flutter_screenutil:
   flutter_svg:
+  lottie:
+  flutter_animate:
+  toastification:
+  connectivity_plus:
+  image_picker:
+  pin_code_fields:
+  intl_phone_field:
 
 <h1>🎨 UI/UX</h1>
 
