@@ -113,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, state) {
           final cubit = context.read<ProfileCubit>();
           if (state is ProfileLoading && cubit.currentUser == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: LoadingWidget());
           }
 
           return Scaffold(

@@ -31,6 +31,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   void _handleError(Object e) {
     debugPrint("❌ PROFILE ERROR DETAIL => $e");
+    log("❌ PROFILE ERROR DETAIL", error: e);
     String errorMessage = LocaleKeys.smth_went_wrong.tr();
 
     if (e is DioException) {
@@ -54,21 +55,11 @@ class ProfileCubit extends Cubit<ProfileState> {
         } else {
           final statusCode = e.response?.statusCode;
           switch (statusCode) {
-            case 400:
-              errorMessage = LocaleKeys.case_400.tr();
-              break;
-            case 401:
-              errorMessage = LocaleKeys.case_401.tr();
-              break;
-            case 404:
-              errorMessage = LocaleKeys.case_404.tr();
-              break;
-            case 415:
-              errorMessage = LocaleKeys.invalid_image_format.tr();
-              break;
-            case 500:
-              errorMessage = LocaleKeys.case_500.tr();
-              break;
+            case 400: errorMessage = LocaleKeys.case_400.tr(); break;
+            case 401: errorMessage = LocaleKeys.case_401.tr(); break;
+            case 404: errorMessage = LocaleKeys.case_404.tr(); break;
+            case 415: errorMessage = LocaleKeys.invalid_image_format.tr(); break;
+            case 500: errorMessage = LocaleKeys.case_500.tr(); break;
           }
         }
       }
@@ -83,20 +74,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
-
       await _repo.logout(token);
-
-      // Clear token and other local data
       await prefs.remove('token');
-      // Keep is_first_time so they don't see onboarding again
-
       emit(LogoutSuccess());
     } catch (e) {
-      debugPrint("LOGOUT ERROR: $e");
-      // Even if API fails, we often want to force logout locally
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('token');
-      emit(LogoutSuccess());
+      _handleError(e);
     }
   }
 
@@ -109,27 +91,17 @@ class ProfileCubit extends Cubit<ProfileState> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
-      final updatedUser = await _repo.updateProfile(
+      // Perform PUT update
+      await _repo.updateProfile(
         token: token,
         username: username,
         email: email,
         profilePhotoUrl: currentUser?.profilePhotoUrl,
       );
 
-      // Safety check: Only update if the response is valid and not empty
-      if (updatedUser.username.isNotEmpty) {
-        // Preserve photoUrl if the update response doesn't include it
-        if (updatedUser.profilePhotoUrl.isEmpty && currentUser != null) {
-          currentUser = updatedUser.copyWith(
-            profilePhotoUrl: currentUser!.profilePhotoUrl,
-          );
-        } else {
-          currentUser = updatedUser;
-        }
-        emit(ProfileUpdateSuccess(currentUser!));
-      } else {
-        emit(ProfileError(LocaleKeys.smth_went_wrong.tr()));
-      }
+      // Refresh data using GET as suggested by Postman results
+      await getProfile();
+      emit(ProfileUpdateSuccess(currentUser!));
     } catch (e) {
       _handleError(e);
     }
@@ -141,15 +113,17 @@ class ProfileCubit extends Cubit<ProfileState> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
+      // Perform PUT update for photo
       await _repo.updatePhoto(token: token, photoPath: photoPath);
 
-      // Force a full refresh to get the new URL reliably
-      final prefs2 = await SharedPreferences.getInstance();
-      final token2 = prefs2.getString('token') ?? '';
-      final user = await _repo.getProfile(token2);
+      // Give the server a second to process the image before refreshing
+      await Future.delayed(const Duration(seconds: 1));
 
-      currentUser = user;
-      emit(ProfileUpdateSuccess(user));
+      // Refresh data using GET
+      await getProfile();
+      if (currentUser != null) {
+        emit(ProfileUpdateSuccess(currentUser!));
+      }
     } catch (e) {
       _handleError(e);
     }

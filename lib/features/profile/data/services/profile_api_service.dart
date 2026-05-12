@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import '../../../../core/services/dio_helper.dart';
@@ -23,7 +25,7 @@ class ProfileApiService {
     required String email,
     String? profilePhotoUrl,
   }) async {
-    return await DioHelper.patch(
+    return await DioHelper.put(
       endPoint: 'Auth/profile',
       token: token,
       data: {
@@ -41,20 +43,20 @@ class ProfileApiService {
     required String token,
     required String photoPath,
   }) async {
-    final fileName = photoPath.split('/').last;
+    // Read file and convert to Base64
+    final bytes = await File(photoPath).readAsBytes();
+    final base64Image = base64Encode(bytes);
 
-    FormData formData = FormData.fromMap({
-      "profilePhotoUrl": await MultipartFile.fromFile(
-        photoPath, 
-        filename: fileName, 
-        contentType: MediaType.parse("image/jpeg"),
-      ),
-    });
-
+    // Send as JSON string via PUT
     return await DioHelper.put(
       endPoint: 'Auth/profile',
       token: token,
-      data: formData,
+      data: {
+        "profilePhotoUrl": base64Image,
+      },
+      options: Options(
+        contentType: 'application/json',
+      ),
     );
   }
 }
