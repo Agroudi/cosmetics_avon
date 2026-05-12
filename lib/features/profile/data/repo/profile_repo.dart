@@ -9,8 +9,10 @@ abstract class ProfileRepo {
     required String email,
     String? profilePhotoUrl,
   });
-  Future<void> updatePhoto({
+  Future<UserProfileModel> updatePhoto({
     required String token,
     required String photoPath,
+    required String username,
+    required String email,
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cosmetics_avon/features/auth/widgets/dialog.dart';
 import 'package:cosmetics_avon/features/profile/data/models/user_profile_model.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -42,12 +44,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isLoadingShowing) {
       _isLoadingShowing = false;
       // Use small delay to ensure Ticker is safe to dispose
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (!mounted) return;
-        if (context.mounted) {
-          AppLoading.hide(context);
-        }
-      });
+      if (!mounted) return;
+      if (context.mounted) {
+        AppLoading.hide(context);
+      }
     }
   }
 
@@ -143,6 +143,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       photoUrl = state.user.profilePhotoUrl;
     }
 
+    final localPath = cubit.localPhotoPath;
+    final hasLocalImage = localPath != null && File(localPath).existsSync();
+
     return SizedBox(
       height: 160.h + 56.r,
       child: Stack(
@@ -172,17 +175,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 56.r,
-                    backgroundImage: photoUrl.isNotEmpty
-                        ? NetworkImage(photoUrl)
-                        : null,
                     backgroundColor: Colors.white,
-                    child: photoUrl.isEmpty
-                        ? Icon(
-                            Icons.person,
-                            size: 60.r,
-                            color: AppColors.Secondary,
-                          )
-                        : null,
+                    child: CircleAvatar(
+                      radius: 53.r,
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: hasLocalImage
+                          ? FileImage(File(localPath!))
+                          : (photoUrl.startsWith('data:image')
+                              ? MemoryImage(base64Decode(photoUrl.split(',').last))
+                              : (photoUrl.isNotEmpty && !photoUrl.contains('example.com')
+                                  ? NetworkImage(photoUrl)
+                                  : null)) as ImageProvider?,
+                      child: (!hasLocalImage && (photoUrl.isEmpty || photoUrl.contains('example.com')))
+                          ? Icon(
+                              Icons.person,
+                              size: 60.r,
+                              color: AppColors.Secondary,
+                            )
+                          : null,
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
@@ -305,6 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     description: LocaleKeys.logout_desc.tr(),
                     buttonText: LocaleKeys.logout_menu.tr(),
                     onPressed: () {
+                      Navigator.pop(context);
                       context.read<ProfileCubit>().logout();
                     },
                     secondButtonText: LocaleKeys.cancel.tr(),
@@ -521,6 +533,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 final XFile? image = await picker.pickImage(
                   source: ImageSource.camera,
+                  imageQuality: 50,
                 );
                 if (image != null) {
                   profileCubit.updatePhoto(image.path);
@@ -535,6 +548,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 final XFile? image = await picker.pickImage(
                   source: ImageSource.gallery,
+                  imageQuality: 50,
                 );
                 if (image != null) {
                   profileCubit.updatePhoto(image.path);

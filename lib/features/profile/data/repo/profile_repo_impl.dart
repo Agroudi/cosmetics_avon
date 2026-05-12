@@ -35,10 +35,18 @@ class ProfileRepoImpl implements ProfileRepo {
   }
 
   @override
-  Future<void> updatePhoto({
+  Future<UserProfileModel> updatePhoto({
     required String token,
     required String photoPath,
+    required String username,
+    required String email,
   }) async {
-    await _apiService.updatePhoto(token: token, photoPath: photoPath);
+    final response = await _apiService.updatePhoto(
+      token: token,
+      photoPath: photoPath,
+      username: username,
+      email: email,
+    );
+    return UserProfileModel.fromJson(response.data);
   }
 }

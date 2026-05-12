@@ -12,11 +12,12 @@ import 'profile_state.dart';
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo _repo;
   UserProfileModel? currentUser;
+  String? localPhotoPath;
 
   ProfileCubit(this._repo) : super(ProfileInitial());
 
-  Future<void> getProfile() async {
-    emit(ProfileLoading());
+  Future<void> getProfile({bool silent = false}) async {
+    if (!silent) emit(ProfileLoading());
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
@@ -47,6 +48,9 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (serverMessage != null && serverMessage is String) {
         errorMessage = serverMessage;
       } else {
+        // Fallback to status message if available
+        errorMessage = e.response?.statusMessage ?? errorMessage;
+        
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout) {
           errorMessage = LocaleKeys.connection_timeout.tr();
@@ -92,38 +96,67 @@ class ProfileCubit extends Cubit<ProfileState> {
       final token = prefs.getString('token') ?? '';
 
       // Perform PUT update
-      await _repo.updateProfile(
+      final updatedUser = await _repo.updateProfile(
         token: token,
         username: username,
         email: email,
         profilePhotoUrl: currentUser?.profilePhotoUrl,
       );
 
-      // Refresh data using GET as suggested by Postman results
-      await getProfile();
-      emit(ProfileUpdateSuccess(currentUser!));
+      // Only update currentUser if the response actually contains user data (id > 0)
+      if (updatedUser.id != 0) {
+        currentUser = updatedUser;
+      } else {
+        // Fallback: update local data if response was just a success message
+        currentUser = currentUser?.copyWith(
+          username: username,
+          email: email,
+        );
+      }
+      
+      // Emit success to close UI and show toast
+      if (currentUser != null) {
+        emit(ProfileUpdateSuccess(currentUser!));
+      }
+
+      // Refresh data silently in the background to ensure everything is in sync
+      getProfile(silent: true);
     } catch (e) {
       _handleError(e);
     }
   }
 
   Future<void> updatePhoto(String photoPath) async {
+    // Set local path immediately for instant UI feedback
+    localPhotoPath = photoPath;
     emit(ProfileLoading());
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token') ?? '';
 
       // Perform PUT update for photo
-      await _repo.updatePhoto(token: token, photoPath: photoPath);
+      final updatedUser = await _repo.updatePhoto(
+        token: token,
+        photoPath: photoPath,
+        username: currentUser?.username ?? "",
+        email: currentUser?.email ?? "",
+      );
 
-      // Give the server a second to process the image before refreshing
-      await Future.delayed(const Duration(seconds: 1));
+      // Only update currentUser if the response actually contains user data
+      if (updatedUser.id != 0) {
+        currentUser = updatedUser;
+      }
+      
+      localPhotoPath = null; // Clear local path after success
 
-      // Refresh data using GET
-      await getProfile();
+      // Emit success to show toast and hide loading
       if (currentUser != null) {
         emit(ProfileUpdateSuccess(currentUser!));
       }
+
+      // Refresh data silently in the background
+      getProfile(silent: true);
     } catch (e) {
       _handleError(e);
     }

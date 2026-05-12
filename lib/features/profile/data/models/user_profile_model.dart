@@ -18,6 +18,10 @@ class UserProfileModel {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+    String photoUrl = json['profilePhotoUrl'] ?? '';
+    if (photoUrl.contains('example.com')) {
+      photoUrl = '';
+    }
     return UserProfileModel(
       id: json['id'] ?? 0,
       username: json['username'] ?? '',
@@ -25,7 +29,7 @@ class UserProfileModel {
       role: json['role'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
       countryCode: json['countryCode'] ?? '',
-      profilePhotoUrl: json['profilePhotoUrl'] ?? '',
+      profilePhotoUrl: photoUrl,
     );
   }
 

@@ -25,13 +25,21 @@ class ProfileApiService {
     required String email,
     String? profilePhotoUrl,
   }) async {
+    // Filter out dummy URLs
+    final validPhotoUrl = (profilePhotoUrl != null && profilePhotoUrl.contains('example.com')) 
+        ? "" 
+        : profilePhotoUrl;
+
     return await DioHelper.put(
       endPoint: 'Auth/profile',
       token: token,
       data: {
         "username": username,
+        "Username": username,
         "email": email,
-        "profilePhotoUrl": profilePhotoUrl ?? "",
+        "Email": email,
+        "profilePhotoUrl": validPhotoUrl ?? "",
+        "ProfilePhotoUrl": validPhotoUrl ?? "",
       },
       options: Options(
         contentType: 'application/json',
@@ -42,17 +50,23 @@ class ProfileApiService {
   Future<Response> updatePhoto({
     required String token,
     required String photoPath,
+    required String username,
+    required String email,
   }) async {
-    // Read file and convert to Base64
+    // Read file and convert to Base64 with prefix
     final bytes = await File(photoPath).readAsBytes();
-    final base64Image = base64Encode(bytes);
+    final base64Image = "data:image/jpeg;base64,${base64Encode(bytes)}";
 
-    // Send as JSON string via PUT
     return await DioHelper.put(
       endPoint: 'Auth/profile',
       token: token,
       data: {
+        "username": username,
+        "Username": username,
+        "email": email,
+        "Email": email,
         "profilePhotoUrl": base64Image,
+        "ProfilePhotoUrl": base64Image,
       },
       options: Options(
         contentType: 'application/json',
