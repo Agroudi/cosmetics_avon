@@ -339,10 +339,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             SizedBox(height: 32.h),
 
                             // ─── Divider ─────────────────────────────────────
-                            Divider(
+                            _DashedDivider(
                               color: AppColors.Txt.withOpacity(0.35),
-                              thickness: 1,
-                              height: 1,
                             ),
 
                             SizedBox(height: 32.h),
@@ -394,7 +392,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             SizedBox(height: 20.h),
 
                             Divider(
-                              color: AppColors.Txt.withOpacity(0.35),
+                              color: const Color(0xFF73B9BB),
                               thickness: 1,
                               height: 1,
                             ),
@@ -515,6 +513,41 @@ class _SummaryRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DashedDivider extends StatelessWidget {
+  final Color color;
+  final double height;
+  final double dashWidth;
+  final double dashSpace;
+
+  const _DashedDivider({
+    required this.color,
+    this.height = 1,
+    this.dashWidth = 5,
+    this.dashSpace = 3,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final boxWidth = constraints.constrainWidth();
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          direction: Axis.horizontal,
+          children: List.generate(dashCount, (_) {
+            return SizedBox(
+              width: dashWidth,
+              height: height,
+              child: DecoratedBox(decoration: BoxDecoration(color: color)),
+            );
+          }),
+        );
+      },
     );
   }
 }
