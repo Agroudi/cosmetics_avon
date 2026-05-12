@@ -9,12 +9,14 @@ class QuantityController extends StatelessWidget {
   final int quantity;
   final VoidCallback onPlus;
   final VoidCallback onMinus;
+  final bool isMaxStock;
 
   const QuantityController({
     super.key,
     required this.quantity,
     required this.onPlus,
     required this.onMinus,
+    this.isMaxStock = false,
   });
 
   @override
@@ -37,10 +39,10 @@ class QuantityController extends StatelessWidget {
         children: [
 
           IconButton(
-            onPressed: onMinus,
+            onPressed: quantity > 1 ? onMinus : null,
             icon: Icon(
               Icons.remove,
-              color: AppColors.Secondary,
+              color: quantity > 1 ? AppColors.Secondary : AppColors.Disabled,
             ),
           ),
 
@@ -58,7 +60,7 @@ class QuantityController extends StatelessWidget {
             onPressed: onPlus,
             icon: Icon(
               Icons.add,
-              color: AppColors.Secondary,
+              color: isMaxStock ? AppColors.Disabled : AppColors.Secondary,
             ),
           ),
         ],

@@ -14,6 +14,10 @@ class DioHelper {
 
         receiveDataWhenStatusError: true,
 
+        headers: {
+          'Accept': 'application/json',
+        },
+
         connectTimeout: const Duration(seconds: 60),
 
         receiveTimeout: const Duration(seconds: 60),
@@ -27,31 +31,85 @@ class DioHelper {
     required String endPoint,
     String? token,
   }) async {
-
-    dio.options.headers = {
-
-      'Authorization':
-      token != null ? 'Bearer $token' : null,
-    };
-
-    return await dio.get(endPoint);
+    return await dio.get(
+      endPoint,
+      options: Options(
+        headers: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      ),
+    );
   }
 
   static Future<Response> post({
     required String endPoint,
-    Map<String, dynamic>? data,
+    dynamic data,
     String? token,
+    Options? options,
   }) async {
-
-    dio.options.headers = {
-
-      'Authorization':
-      token != null ? 'Bearer $token' : null,
+    final mergedOptions = options ?? Options();
+    mergedOptions.headers = {
+      ...?mergedOptions.headers,
+      if (token != null) 'Authorization': 'Bearer $token',
     };
-
+    
     return await dio.post(
       endPoint,
       data: data,
+      options: mergedOptions,
+    );
+  }
+
+  static Future<Response> put({
+    required String endPoint,
+    dynamic data,
+    String? token,
+    Options? options,
+  }) async {
+    final mergedOptions = options ?? Options();
+    mergedOptions.headers = {
+      ...?mergedOptions.headers,
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    return await dio.put(
+      endPoint,
+      data: data,
+      options: mergedOptions,
+    );
+  }
+
+  static Future<Response> patch({
+    required String endPoint,
+    dynamic data,
+    String? token,
+    Options? options,
+  }) async {
+    final mergedOptions = options ?? Options();
+    mergedOptions.headers = {
+      ...?mergedOptions.headers,
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+    return await dio.patch(
+      endPoint,
+      data: data,
+      options: mergedOptions,
+    );
+  }
+
+  static Future<Response> delete({
+    required String endPoint,
+    dynamic data,
+    String? token,
+  }) async {
+    return await dio.delete(
+      endPoint,
+      data: data,
+      options: Options(
+        headers: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      ),
     );
   }
 }

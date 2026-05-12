@@ -110,7 +110,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 toastification.show(
                   context: context,
                   type: ToastificationType.info,
-                  title: const Text("Another code has been sent"),
+                  title: Text(LocaleKeys.another_code_sent.tr()),
                   autoCloseDuration: const Duration(seconds: 5),
                 );
               }
@@ -120,7 +120,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   toastification.show(
                     context: context,
                     type: ToastificationType.success,
-                    title: const Text("Account activated successfully"),
+                    title: Text(LocaleKeys.account_activated.tr()),
                     autoCloseDuration: const Duration(seconds: 5),
                   );
                   showDialog(
@@ -148,7 +148,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   toastification.show(
                     context: context,
                     type: ToastificationType.success,
-                    title: const Text("Phone verified successfully"),
+                    title: Text(LocaleKeys.phone_verified.tr()),
                     autoCloseDuration: const Duration(seconds: 5),
                   );
 
@@ -238,8 +238,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 onTap: (){Navigator.pop(context);},
                                 child: Text(
                                   widget.type == VerificationType.email
-                                      ? 'Edit the email'
-                                      : 'Edit the number',
+                                      ? LocaleKeys.edit_email.tr()
+                                      : LocaleKeys.edit_number.tr(),
                                   style: AppTextStyle.txtStyle.copyWith(
                                     color: AppColors.Primary,
                                     fontSize: 12.sp,

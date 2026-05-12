@@ -224,7 +224,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                                         toastification.show(
                                           context: context,
                                           type: ToastificationType.error,
-                                          title: const Text("Error: Phone number missing"),
+                                          title: Text(LocaleKeys.phone_number_missing.tr()),
                                         );
                                         return;
                                       }

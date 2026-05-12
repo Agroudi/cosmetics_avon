@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_style.dart';
+import '../../../../gen/assets.gen.dart';
 import '../data/models/category_model.dart';
 
 class CategoryItem extends StatelessWidget {
@@ -47,10 +49,11 @@ class CategoryItem extends StatelessWidget {
               ),
             ),
 
-            Icon(
-              Icons.play_arrow_rounded,
-              size: 18.sp,
-              color: AppColors.Secondary,
+            SvgPicture.asset(
+              Assets.icons.goto,
+              width: 12.w,
+              height: 12.h,
+              colorFilter: ColorFilter.mode(AppColors.Secondary, BlendMode.srcIn),
             ),
           ],
         ),

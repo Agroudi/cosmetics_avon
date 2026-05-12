@@ -62,7 +62,7 @@ class AuthCubit extends Cubit<AuthState> {
         if (_isUnverified(messageValue)) {
           emit(AuthUnverified());
         } else {
-          emit(AuthError(data['message'] ?? "Login failed"));
+          emit(AuthError(data['message'] ?? LocaleKeys.case_401.tr()));
         }
       }
 
@@ -83,28 +83,28 @@ class AuthCubit extends Cubit<AuthState> {
         return;
       }
 
-      switch (statusCode) {
-        case 400:
-          emit(AuthError(serverMessage.isEmpty ? LocaleKeys.case_400.tr() : serverMessage));
-          break;
-        case 401:
-          emit(AuthError(serverMessage.isEmpty ? LocaleKeys.case_401.tr() : serverMessage));
-          break;
-        case 404:
-          emit(AuthError(LocaleKeys.case_404.tr()));
-          break;
-        case 500:
-          emit(AuthError(LocaleKeys.case_500.tr()));
-          break;
-        case 302:
-          emit(AuthError(LocaleKeys.case_302.tr()));
-          break;
-        default:
-          if (e.response == null) {
-            emit(AuthError(LocaleKeys.no_internet.tr()));
-          } else {
-            emit(AuthError(serverMessage.isEmpty ? LocaleKeys.smth_went_wrong.tr() : serverMessage));
-          }
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        emit(AuthError(LocaleKeys.connection_timeout.tr()));
+      } else if (e.type == DioExceptionType.connectionError) {
+        emit(AuthError(LocaleKeys.no_internet.tr()));
+      } else {
+        switch (statusCode) {
+          case 400:
+            emit(AuthError(LocaleKeys.case_400.tr()));
+            break;
+          case 401:
+            emit(AuthError(LocaleKeys.case_401.tr()));
+            break;
+          case 404:
+            emit(AuthError(LocaleKeys.case_404.tr()));
+            break;
+          case 500:
+            emit(AuthError(LocaleKeys.case_500.tr()));
+            break;
+          default:
+            emit(AuthError(LocaleKeys.smth_went_wrong.tr()));
+        }
       }
 
     } catch (e) {
@@ -234,20 +234,20 @@ class AuthCubit extends Cubit<AuthState> {
       if (isSuccess) {
         emit(ForgotPasswordSuccess());
       } else {
-        emit(ForgotPasswordError(data['message'] ?? "Failed to send code"));
+        emit(ForgotPasswordError(data['message'] ?? LocaleKeys.failed_send_code.tr()));
       }
     } on DioException catch (e) {
       debugPrint("FORGOT PASSWORD ERROR: ${e.response?.data}");
       final serverData = e.response?.data;
-      String serverMessage = "Failed to send code";
+      String serverMessage = LocaleKeys.failed_send_code.tr();
       if (serverData is Map) {
-        serverMessage = serverData['message'] ?? serverData['error'] ?? "Failed to send code";
+        serverMessage = serverData['message'] ?? serverData['error'] ?? LocaleKeys.failed_send_code.tr();
       } else if (serverData != null && serverData.toString().isNotEmpty) {
         serverMessage = serverData.toString();
       }
       emit(ForgotPasswordError(serverMessage));
     } catch (e) {
-      emit(ForgotPasswordError("Something went wrong"));
+      emit(ForgotPasswordError(LocaleKeys.smth_went_wrong.tr()));
     }
   }
 
@@ -282,20 +282,20 @@ class AuthCubit extends Cubit<AuthState> {
       if (isSuccess) {
         emit(VerifySuccess());
       } else {
-        emit(VerifyError(data['message'] ?? "Verification failed"));
+        emit(VerifyError(data['message'] ?? LocaleKeys.verification_failed.tr()));
       }
     } on DioException catch (e) {
       debugPrint("VERIFY OTP ERROR: ${e.response?.data}");
       final serverData = e.response?.data;
-      String serverMessage = "Verification failed";
+      String serverMessage = LocaleKeys.verification_failed.tr();
       if (serverData is Map) {
-        serverMessage = serverData['message'] ?? serverData['error'] ?? "Verification failed";
+        serverMessage = serverData['message'] ?? serverData['error'] ?? LocaleKeys.verification_failed.tr();
       } else if (serverData != null && serverData.toString().isNotEmpty) {
         serverMessage = serverData.toString();
       }
       emit(VerifyError(serverMessage));
     } catch (e) {
-      emit(VerifyError("Something went wrong"));
+      emit(VerifyError(LocaleKeys.smth_went_wrong.tr()));
     }
   }
 
@@ -337,8 +337,7 @@ class AuthCubit extends Cubit<AuthState> {
       } else {
         emit(
           ResetPasswordError(
-            data['message'] ?? "Reset password failed",
-            // TODO: TRANSLATE RESET PASSWORD FAILED
+            data['message'] ?? LocaleKeys.reset_password_failed.tr(),
           ),
         );
       }
@@ -368,8 +367,7 @@ class AuthCubit extends Cubit<AuthState> {
       if (lowerMessage.contains("match")) {
         emit(
           ResetPasswordError(
-            "Passwords do not match",
-            // TODO: TRANSLATE PASSWORDS DO NOT MATCH
+            LocaleKeys.pass_not_match.tr(),
           ),
         );
       }
@@ -384,8 +382,7 @@ class AuthCubit extends Cubit<AuthState> {
       ) {
         emit(
           ResetPasswordError(
-            "Password is too weak",
-            // TODO: TRANSLATE WEAK PASSWORD
+            LocaleKeys.password_weak.tr(),
           ),
         );
       }
@@ -394,8 +391,7 @@ class AuthCubit extends Cubit<AuthState> {
       else if (lowerMessage.contains("phone")) {
         emit(
           ResetPasswordError(
-            "Phone number is required",
-            // TODO: TRANSLATE PHONE NUMBER REQUIRED
+            LocaleKeys.phone_number_required.tr(),
           ),
         );
       }
@@ -404,8 +400,7 @@ class AuthCubit extends Cubit<AuthState> {
       else if (lowerMessage.contains("country")) {
         emit(
           ResetPasswordError(
-            "Country code is required",
-            // TODO: TRANSLATE COUNTRY CODE REQUIRED
+            LocaleKeys.country_code_required.tr(),
           ),
         );
       }
@@ -417,9 +412,8 @@ class AuthCubit extends Cubit<AuthState> {
             emit(
               ResetPasswordError(
                 serverMessage.isEmpty
-                    ? "Invalid request"
+                    ? LocaleKeys.invalid_request.tr()
                     : serverMessage,
-                // TODO: TRANSLATE INVALID REQUEST
               ),
             );
             break;
@@ -427,8 +421,7 @@ class AuthCubit extends Cubit<AuthState> {
           case 401:
             emit(
               ResetPasswordError(
-                "Unauthorized request",
-                // TODO: TRANSLATE UNAUTHORIZED REQUEST
+                LocaleKeys.unauthorized_request.tr(),
               ),
             );
             break;
@@ -436,8 +429,7 @@ class AuthCubit extends Cubit<AuthState> {
           case 404:
             emit(
               ResetPasswordError(
-                "User not found",
-                // TODO: TRANSLATE USER NOT FOUND
+                LocaleKeys.case_404.tr(),
               ),
             );
             break;
@@ -445,8 +437,7 @@ class AuthCubit extends Cubit<AuthState> {
           case 500:
             emit(
               ResetPasswordError(
-                "Server error, please try again later",
-                // TODO: TRANSLATE SERVER ERROR
+                LocaleKeys.server_error_later.tr(),
               ),
             );
             break;
@@ -458,8 +449,7 @@ class AuthCubit extends Cubit<AuthState> {
 
               emit(
                 ResetPasswordError(
-                  "Connection timeout",
-                  // TODO: TRANSLATE CONNECTION TIMEOUT
+                  LocaleKeys.connection_timeout.tr(),
                 ),
               );
 
@@ -467,8 +457,7 @@ class AuthCubit extends Cubit<AuthState> {
 
               emit(
                 ResetPasswordError(
-                  "No internet connection",
-                  // TODO: TRANSLATE NO INTERNET
+                  LocaleKeys.no_internet.tr(),
                 ),
               );
 
@@ -477,9 +466,8 @@ class AuthCubit extends Cubit<AuthState> {
               emit(
                 ResetPasswordError(
                   serverMessage.isEmpty
-                      ? "Something went wrong"
+                      ? LocaleKeys.smth_went_wrong.tr()
                       : serverMessage,
-                  // TODO: TRANSLATE SOMETHING WENT WRONG
                 ),
               );
 
@@ -493,8 +481,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(
         ResetPasswordError(
-          "Unexpected error occurred",
-          // TODO: TRANSLATE UNEXPECTED ERROR
+          LocaleKeys.unexp_error.tr(),
         ),
       );
     }
@@ -527,20 +514,20 @@ class AuthCubit extends Cubit<AuthState> {
       if (isSuccess) {
         emit(ResendOtpSuccess());
       } else {
-        emit(VerifyError(data['message'] ?? "Failed to resend"));
+        emit(VerifyError(data['message'] ?? LocaleKeys.failed_resend.tr()));
       }
     } on DioException catch (e) {
       debugPrint("RESEND OTP ERROR: ${e.response?.data}");
       final serverData = e.response?.data;
-      String serverMessage = "Failed to resend";
+      String serverMessage = LocaleKeys.failed_resend.tr();
       if (serverData is Map) {
-        serverMessage = serverData['message'] ?? serverData['error'] ?? "Failed to resend";
+        serverMessage = serverData['message'] ?? serverData['error'] ?? LocaleKeys.failed_resend.tr();
       } else if (serverData != null && serverData.toString().isNotEmpty) {
         serverMessage = serverData.toString();
       }
       emit(VerifyError(serverMessage));
     } catch (e) {
-      emit(VerifyError("Something went wrong"));
+      emit(VerifyError(LocaleKeys.smth_went_wrong.tr()));
     }
   }
 }

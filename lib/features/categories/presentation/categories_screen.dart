@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_style.dart';
 import '../../../core/widgets/home_search_bar.dart';
+import '../../../gen/locale_keys.g.dart';
 import '../../home/cubit/home_cubit.dart';
 import '../widgets/categories_item.dart';
 
@@ -45,7 +47,7 @@ class CategoriesScreen extends StatelessWidget {
 
                 Center(
                   child: Text(
-                    "Categories",
+                    LocaleKeys.categories_title.tr(),
 
                     style: AppTextStyle.txtStyle.copyWith(
                       color: AppColors.Secondary,

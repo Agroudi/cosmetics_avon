@@ -48,7 +48,7 @@ class CartApiService {
 
     final token = prefs.getString('token');
 
-    return await DioHelper.post(
+    return await DioHelper.put(
 
       endPoint:
       'Cart/update?productId=$productId&quantity=$quantity',
@@ -64,7 +64,7 @@ class CartApiService {
 
     final token = prefs.getString('token');
 
-    return await DioHelper.post(
+    return await DioHelper.delete(
 
       endPoint: 'Cart/remove/$productId',
 

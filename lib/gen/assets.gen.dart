@@ -32,6 +32,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/checkout.svg
   String get checkout => 'assets/icons/checkout.svg';
 
+  /// File path: assets/icons/delete.svg
+  String get delete => 'assets/icons/delete.svg';
+
   /// File path: assets/icons/edit_info.svg
   String get editInfo => 'assets/icons/edit_info.svg';
 
@@ -40,6 +43,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/eye_true.svg
   String get eyeTrue => 'assets/icons/eye_true.svg';
+
+  /// File path: assets/icons/goto.svg
+  String get goto => 'assets/icons/goto.svg';
 
   /// File path: assets/icons/home.svg
   String get home => 'assets/icons/home.svg';
@@ -80,9 +86,6 @@ class $AssetsIconsGen {
   /// File path: assets/icons/wallet.svg
   String get wallet => 'assets/icons/wallet.svg';
 
-  /// File path: assets/icons/delete.svg
-  String get delete => 'assets/icons/delete.svg';
-
   /// List of all assets
   List<dynamic> get values => [
     addCart,
@@ -91,9 +94,11 @@ class $AssetsIconsGen {
     cart,
     categories,
     checkout,
+    delete,
     editInfo,
     eyeFalse,
     eyeTrue,
+    goto,
     home,
     logout,
     order,
@@ -137,8 +142,11 @@ class $AssetsLottieGen {
   /// File path: assets/lottie/lipstick.json
   String get lipstick => 'assets/lottie/lipstick.json';
 
+  /// File path: assets/lottie/shopping_online.json
+  String get shoppingOnline => 'assets/lottie/shopping_online.json';
+
   /// List of all assets
-  List<String> get values => [lipstick];
+  List<String> get values => [lipstick, shoppingOnline];
 }
 
 class $AssetsTranslationsGen {

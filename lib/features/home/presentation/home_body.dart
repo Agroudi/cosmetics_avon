@@ -1,112 +1,125 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:toastification/toastification.dart';
+
 import '../../../../core/theme/text_style.dart';
+import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/home_search_bar.dart';
+import '../../../gen/locale_keys.g.dart';
 import '../../cart/cubit/cart_cubit.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/home_banner.dart';
 import '../widgets/product_grid_item.dart';
 
 class HomeBody extends StatelessWidget {
-
   const HomeBody({super.key});
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.watch<HomeCubit>();
+    final homeState = context.watch<HomeCubit>().state;
 
-    return BlocListener<CartCubit, CartState>(
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<HomeCubit, HomeState>(
+          listener: (context, state) {
+            if (state is HomeError) {
+              toastification.show(
+                context: context,
+                type: ToastificationType.error,
+                title: Text(state.message),
+                autoCloseDuration: const Duration(seconds: 3),
+              );
+            }
+          },
+        ),
+        BlocListener<CartCubit, CartState>(
+          listener: (context, state) {
+            if (state is CartItemAdded) {
+              toastification.show(
+                context: context,
 
-        listener: (context, state) {
+                type: ToastificationType.success,
 
-          if(state is CartItemAdded){
+                autoCloseDuration: const Duration(seconds: 3),
 
-            toastification.show(
+                title: Text(LocaleKeys.added_to_cart_success.tr()),
+              );
+            }
 
-              context: context,
+            if (state is CartInfoState) {
+              toastification.show(
+                context: context,
 
-              type: ToastificationType.success,
+                type: ToastificationType.info,
 
-              autoCloseDuration: const Duration(seconds: 3),
+                autoCloseDuration: const Duration(seconds: 3),
 
-              title: const Text(
-                "Added to cart successfully",
-              ),
-            );
-          }
+                title: Text(state.message),
+              );
+            }
 
-          if(state is CartInfoState){
+            if (state is CartError) {
+              toastification.show(
+                context: context,
 
-            toastification.show(
+                type: ToastificationType.error,
 
-              context: context,
+                autoCloseDuration: const Duration(seconds: 3),
 
-              type: ToastificationType.info,
-
-              title: Text(state.message),
-            );
-          }
-
-          if(state is CartError){
-
-            toastification.show(
-
-              context: context,
-
-              type: ToastificationType.error,
-
-              title: Text(state.message),
-            );
-          }
-        },
-
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 13.w),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20.h),
-                  const HomeSearchBar(),
-                  SizedBox(height: 24.h),
-                  if (cubit.sliders.isNotEmpty)
-                    HomeBanner(
-                      slider: cubit.sliders.first,
-                    ),
-                  SizedBox(height: 30.h),
-                  Text(
-                    "Top rated products",
-                    style: AppTextStyle.txtStyle.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16.sp,
-                    ),
+                title: Text(state.message),
+              );
+            }
+          },
+        ),
+      ],
+      child: SafeArea(
+        child: homeState is HomeLoading
+            ? const Center(child: LoadingWidget())
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 13.w),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 20.h),
+                      const HomeSearchBar(),
+                      SizedBox(height: 24.h),
+                      if (cubit.sliders.isNotEmpty)
+                        HomeBanner(slider: cubit.sliders.first),
+                      SizedBox(height: 30.h),
+                      Text(
+                        LocaleKeys.top_rated_products.tr(),
+                        style: AppTextStyle.txtStyle.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.sp,
+                        ),
+                      ),
+                      SizedBox(height: 20.h),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: cubit.products.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12.w,
+                          mainAxisSpacing: 16.h,
+                          childAspectRatio: 176 / 273,
+                        ),
+                        itemBuilder: (context, index) {
+                          return ProductGridItem(
+                            product: cubit.products[index],
+                          );
+                        },
+                      ),
+                      SizedBox(height: 120.h),
+                    ],
                   ),
-                  SizedBox(height: 20.h),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: cubit.products.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12.w,
-                      mainAxisSpacing: 16.h,
-                      childAspectRatio: 176 / 273,
-                    ),
-                    itemBuilder: (context, index) {
-                      return ProductGridItem(
-                        product: cubit.products[index],
-                      );
-                    },
-                  ),
-                  SizedBox(height: 120.h),
-                ],
+                ),
               ),
-            ),
-          ),
-        )
+      ),
     );
   }
 }

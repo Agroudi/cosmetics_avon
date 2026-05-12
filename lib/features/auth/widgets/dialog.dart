@@ -13,6 +13,9 @@ class SharedDialog extends StatelessWidget {
   final String? description;
   final String? buttonText;
   final VoidCallback? onPressed;
+  final String? secondButtonText;
+  final VoidCallback? onSecondPressed;
+  final Color? secondButtonColor;
 
   const SharedDialog({
     super.key,
@@ -20,6 +23,9 @@ class SharedDialog extends StatelessWidget {
     this.description,
     this.buttonText,
     this.onPressed,
+    this.secondButtonText,
+    this.onSecondPressed,
+    this.secondButtonColor,
   });
 
   @override
@@ -30,9 +36,10 @@ class SharedDialog extends StatelessWidget {
       ),
       child: Container(
         width: 360.w,
-        height: 343.h,
+        height: secondButtonText != null ? 415.h : 343.h,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
@@ -67,11 +74,20 @@ class SharedDialog extends StatelessWidget {
               SizedBox(height: 30.h),
             ],
 
-            if (buttonText != null && onPressed != null)
+            if (buttonText != null && onPressed != null) ...[
               AppButton(
                 txt: buttonText!,
                 onPressed: onPressed,
               ),
+              if (secondButtonText != null && onSecondPressed != null) ...[
+                SizedBox(height: 12.h),
+                AppButton(
+                  txt: secondButtonText!,
+                  onPressed: onSecondPressed,
+                  color: secondButtonColor ?? Colors.grey,
+                ),
+              ],
+            ],
           ],
         ),
       ),

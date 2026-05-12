@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-class AppColors
-{
+class AppColors {
   static Color Primary = Color(0xFFD75D72);
   static Color Secondary = Color(0xFF434C6D);
   static Color Border = Color(0xFF5A6690);
@@ -14,4 +13,5 @@ class AppColors
   static Color SearchBar = Color(0xFFB3B3C1);
   static Color GridPrices = Color(0xFF70839C);
   static Color TxtCart = Color(0xFF434C6D);
+  static Color ProfileBackground = Color(0xFFECA4C5);
 }

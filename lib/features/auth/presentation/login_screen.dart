@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     toastification.show(
                       context: context,
                       type: ToastificationType.info,
-                      title: const Text("Account isn't verified. Please verify your account first"),
+                      title: Text(LocaleKeys.account_not_verified.tr()),
                       autoCloseDuration: const Duration(seconds: 5),
                     );
 
