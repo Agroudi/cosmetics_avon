@@ -12,6 +12,11 @@ import '../../features/home/cubit/home_cubit.dart';
 import '../../features/home/data/repo/home_repo_impl.dart';
 import '../../features/home/data/services/home_api_service.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/home/data/models/product_model.dart';
+import '../../features/categories/presentation/category_products_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/orders/presentation/order_history_screen.dart';
+import '../../features/vouchers/presentation/voucher_screen.dart';
 import 'app_routes.dart';
 
 class AppRouter {
@@ -66,7 +71,37 @@ class AppRouter {
 
       case AppRoutes.checkout:
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => const CheckoutScreen(),
+        );
+
+      case AppRoutes.categoryProducts:
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => CategoryProductsScreen(
+            categoryId: args['categoryId'] as int,
+            categoryTitle: args['categoryTitle'] as String,
+            products: args['products'] as List<ProductModel>,
+          ),
+        );
+
+      case AppRoutes.settings:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SettingsScreen(),
+        );
+
+      case AppRoutes.orderHistory:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const OrderHistoryScreen(),
+        );
+
+      case AppRoutes.vouchers:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const VoucherScreen(),
         );
 
       default:

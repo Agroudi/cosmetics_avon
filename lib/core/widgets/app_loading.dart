@@ -2,17 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class AppLoading {
+  static bool _isShowing = false;
+
   static void show(BuildContext context) {
+    if (_isShowing) return;
+    _isShowing = true;
     showDialog(
       context: context,
       barrierDismissible: false,
+      useRootNavigator: true,
       builder: (_) {
         return const LoadingWidget();
       },
-    );
+    ).then((_) {
+      _isShowing = false;
+    });
   }
 
   static void hide(BuildContext context) {
+    if (!_isShowing) return;
+    _isShowing = false;
     Navigator.of(context, rootNavigator: true).pop();
   }
 }

@@ -88,7 +88,7 @@ class HomeBody extends StatelessWidget {
                       const HomeSearchBar(),
                       SizedBox(height: 24.h),
                       if (cubit.sliders.isNotEmpty)
-                        HomeBanner(slider: cubit.sliders.first),
+                        HomeBanner(sliders: cubit.sliders),
                       SizedBox(height: 30.h),
                       Text(
                         LocaleKeys.top_rated_products.tr(),
@@ -98,22 +98,45 @@ class HomeBody extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: cubit.products.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12.w,
-                          mainAxisSpacing: 16.h,
-                          childAspectRatio: 176 / 273,
-                        ),
-                        itemBuilder: (context, index) {
-                          return ProductGridItem(
-                            product: cubit.products[index],
-                          );
-                        },
-                      ),
+                      cubit.filteredProducts.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 40.h),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.search_off,
+                                      size: 64.r,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    Text(
+                                      LocaleKeys.no_results_found.tr(),
+                                      style: AppTextStyle.txtStyle.copyWith(
+                                        color: Colors.grey,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: cubit.filteredProducts.length,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12.w,
+                                mainAxisSpacing: 16.h,
+                                childAspectRatio: 176 / 273,
+                              ),
+                              itemBuilder: (context, index) {
+                                return ProductGridItem(
+                                  product: cubit.filteredProducts[index],
+                                );
+                              },
+                            ),
                       SizedBox(height: 120.h),
                     ],
                   ),

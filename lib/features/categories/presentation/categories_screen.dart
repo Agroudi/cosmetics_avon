@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/widgets/app_loading.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_style.dart';
 import '../../../core/widgets/home_search_bar.dart';
@@ -24,7 +25,7 @@ class CategoriesScreen extends StatelessWidget {
 
         if (state is HomeLoading) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: LoadingWidget(),
           );
         }
 
@@ -33,6 +34,8 @@ class CategoriesScreen extends StatelessWidget {
             child: Text(state.message),
           );
         }
+
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return SafeArea(
           child: Padding(
@@ -50,7 +53,7 @@ class CategoriesScreen extends StatelessWidget {
                     LocaleKeys.categories_title.tr(),
 
                     style: AppTextStyle.txtStyle.copyWith(
-                      color: AppColors.Secondary,
+                      color: isDark ? DarkColors.textPrimary : AppColors.Secondary,
                       fontWeight: FontWeight.w700,
                       fontSize: 24.sp,
                     ),

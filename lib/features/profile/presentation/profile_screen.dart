@@ -236,6 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final cubit = context.read<ProfileCubit>();
     final user = cubit.currentUser;
     String name = "...";
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (user != null) {
       name = user.username;
@@ -251,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           name,
           textAlign: TextAlign.center,
           style: AppTextStyle.txtStyle.copyWith(
-            color: AppColors.Secondary,
+            color: isDark ? DarkColors.textPrimary : AppColors.Secondary,
             fontWeight: FontWeight.w700,
             fontSize: 22.sp,
           ),
@@ -261,6 +262,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMenuItems(BuildContext context, ProfileState state) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
@@ -269,6 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildItem(
             icon: Assets.icons.editInfo,
             title: LocaleKeys.edit_info.tr(),
+            isDark: isDark,
             onTap: () {
               final user = context.read<ProfileCubit>().currentUser;
               if (user != null) {
@@ -280,31 +284,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildItem(
             icon: Assets.icons.orderHistory,
             title: LocaleKeys.order_history.tr(),
-            onTap: () {},
+            isDark: isDark,
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.orderHistory);
+            },
           ),
           SizedBox(height: 10.h),
           _buildItem(
             icon: Assets.icons.wallet,
             title: LocaleKeys.wallet.tr(),
-            onTap: () {},
+            isDark: isDark,
+            onTap: () {
+              toastification.show(
+                context: context,
+                type: ToastificationType.info,
+                title: Text(LocaleKeys.wallet_coming_soon.tr()),
+                autoCloseDuration: const Duration(seconds: 4),
+              );
+            },
           ),
           SizedBox(height: 10.h),
           _buildItem(
             icon: Assets.icons.settings,
             title: LocaleKeys.settings.tr(),
-            onTap: () {},
+            isDark: isDark,
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.settings);
+            },
           ),
           SizedBox(height: 10.h),
           _buildItem(
             icon: Assets.icons.voucher,
             title: LocaleKeys.voucher.tr(),
-            onTap: () {},
+            isDark: isDark,
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.vouchers);
+            },
           ),
           SizedBox(height: 10.h),
           _buildItem(
             icon: Assets.icons.logout,
             title: LocaleKeys.logout_menu.tr(),
             color: AppColors.Error,
+            isDark: isDark,
             showChevron: false,
             onTap: () {
               showDialog(
@@ -337,13 +359,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String icon,
     required String title,
     required VoidCallback onTap,
+    required bool isDark,
     Color? color,
     bool showChevron = true,
   }) {
+    final defaultColor = isDark ? DarkColors.textPrimary : AppColors.Secondary;
+
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12.r),
+      splashColor: AppColors.Primary.withOpacity(0.12),
+      highlightColor: AppColors.Primary.withOpacity(0.06),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 17.h),
+        padding: EdgeInsets.symmetric(vertical: 17.h, horizontal: 12.w),
         child: Row(
           children: [
             SvgPicture.asset(
@@ -351,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 24.w,
               height: 24.h,
               colorFilter: ColorFilter.mode(
-                color ?? AppColors.Secondary,
+                color ?? defaultColor,
                 BlendMode.srcIn,
               ),
             ),
@@ -359,7 +387,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               title,
               style: AppTextStyle.txtStyle.copyWith(
-                color: color ?? AppColors.Secondary,
+                color: color ?? defaultColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 16.sp,
               ),
@@ -371,7 +399,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 12.w,
                 height: 12.h,
                 colorFilter: ColorFilter.mode(
-                  AppColors.Secondary,
+                  isDark ? DarkColors.textSecondary : AppColors.Secondary,
                   BlendMode.srcIn,
                 ),
               ),

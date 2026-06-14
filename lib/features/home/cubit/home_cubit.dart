@@ -23,9 +23,27 @@ class HomeCubit extends Cubit<HomeState> {
 
   List<ProductModel> products = [];
 
+  String searchQuery = '';
+
   void changeBottomNav(int index) {
     currentIndex = index;
     emit(BottomNavChanged());
+  }
+
+  void searchProducts(String query) {
+    searchQuery = query;
+    emit(HomeSearchUpdated());
+  }
+
+  List<ProductModel> get filteredProducts {
+    if (searchQuery.trim().isEmpty) {
+      return products;
+    }
+    final lowercaseQuery = searchQuery.toLowerCase();
+    return products.where((product) {
+      return product.nameEn.toLowerCase().contains(lowercaseQuery) ||
+          product.nameAr.toLowerCase().contains(lowercaseQuery);
+    }).toList();
   }
 
   Future<void> getHomeData() async {

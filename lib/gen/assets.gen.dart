@@ -153,6 +153,10 @@ class $AssetsImagesGen {
 class $AssetsLottieGen {
   const $AssetsLottieGen();
 
+  /// File path: assets/lottie/delivery_online_shopping.json
+  String get deliveryOnlineShopping =>
+      'assets/lottie/delivery_online_shopping.json';
+
   /// File path: assets/lottie/lipstick.json
   String get lipstick => 'assets/lottie/lipstick.json';
 
@@ -160,7 +164,7 @@ class $AssetsLottieGen {
   String get shoppingOnline => 'assets/lottie/shopping_online.json';
 
   /// List of all assets
-  List<String> get values => [lipstick, shoppingOnline];
+  List<String> get values => [deliveryOnlineShopping, lipstick, shoppingOnline];
 }
 
 class $AssetsTranslationsGen {

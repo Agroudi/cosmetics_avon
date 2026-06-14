@@ -2,6 +2,7 @@ import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:cosmetics_avon/features/auth/presentation/verification_screen.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_form_field.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_phone_field.dart';
+import 'package:cosmetics_avon/core/helpers/phone_validator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,75 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isFormValid = false;
 
 
-  String? validatePhone(String value, String countryCode) {
-    value = value.replaceAll(RegExp(r'\D'), '');
-
-    if (value.isEmpty) {
-      return LocaleKeys.empty_number.tr();
-    }
-
-    switch (countryCode) {
-      case '+20': // Egypt
-        if (value.length < 10) {
-          return LocaleKeys.short_egy_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_egy_number.tr();
-        }
-        break;
-
-      case '+966': // Saudi
-        if (value.length < 9) {
-          return LocaleKeys.short_ksa_number.tr();
-        }
-        if (value.length > 9) {
-          return LocaleKeys.long_ksa_number.tr();
-        }
-        break;
-
-      case '+971': // UAE
-        if (value.length < 9) {
-          return LocaleKeys.short_uae_number.tr();
-        }
-        if (value.length > 9) {
-          return LocaleKeys.long_uae_number;
-        }
-        break;
-
-      case '+1': // USA
-        if (value.length < 10) {
-          return LocaleKeys.short_us_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_us_number.tr();
-        }
-        break;
-
-      case '+49': // Germany
-        if (value.length < 10) {
-          return LocaleKeys.short_german_number.tr();
-        }
-        if (value.length > 11) {
-          return LocaleKeys.long_german_number.tr();
-        }
-        break;
-
-      case '+98': // Iran
-        if (value.length < 10) {
-          return LocaleKeys.short_iran_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_iran_number.tr();
-        }
-        break;
-
-      default:
-        return LocaleKeys.unsupported_number.tr();
-    }
-
-    return null;
-  }
-
   void validateForm() {
     final username = userNameController.text.trim();
     final phone = phoneNumberController.text.trim();
@@ -115,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final isUsernameValid = username.isNotEmpty && username.length >= 3;
 
-    final isPhoneValid = validatePhone(phone, selectedCountryCode) == null;
+    final isPhoneValid = PhoneValidator.validate(phone, selectedCountryCode) == null;
 
     final isEmailValid = RegExp(
       r'^[\w\.-]+@[\w\.-]+\.com$',
@@ -302,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 validateForm();
                               },
                               validator: (value) {
-                                return validatePhone(value!, selectedCountryCode);
+                                return PhoneValidator.validate(value, selectedCountryCode);
                               },
                             ),
 

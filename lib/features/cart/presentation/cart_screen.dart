@@ -34,6 +34,8 @@ class CartScreen extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.watch<CartCubit>();
 
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         return SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 13.w),
@@ -52,7 +54,7 @@ class CartScreen extends StatelessWidget {
                       Text(
                         LocaleKeys.my_cart_title.tr(),
                         style: AppTextStyle.txtStyle.copyWith(
-                          color: AppColors.Secondary,
+                          color: isDark ? DarkColors.textPrimary : AppColors.Secondary,
                           fontWeight: FontWeight.w700,
                           fontSize: 24.sp,
                         ),
@@ -60,8 +62,29 @@ class CartScreen extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, AppRoutes.checkout),
-                          child: SvgPicture.asset(Assets.icons.checkout),
+                          onTap: () {
+                            if (cubit.cartItems.isEmpty) {
+                              toastification.show(
+                                context: context,
+                                type: ToastificationType.info,
+                                title: Text(LocaleKeys.empty_cart_msg.tr()),
+                                autoCloseDuration: const Duration(seconds: 3),
+                              );
+                              return;
+                            }
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.checkout,
+                              arguments: cubit.cartItems,
+                            );
+                          },
+                          child: SvgPicture.asset(
+                            Assets.icons.checkout,
+                            colorFilter: ColorFilter.mode(
+                              isDark ? DarkColors.textPrimary : AppColors.Secondary,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -74,7 +97,7 @@ class CartScreen extends StatelessWidget {
                   LocaleKeys.products_in_cart.tr(args: [cubit.productsCount.toString()]),
 
                   style: AppTextStyle.txtStyle.copyWith(
-                    color: AppColors.TxtCart,
+                    color: isDark ? DarkColors.textSecondary : AppColors.TxtCart,
                     fontWeight: FontWeight.w400,
                     fontSize: 16.sp,
                   ),

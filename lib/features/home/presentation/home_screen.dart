@@ -8,6 +8,7 @@ import 'package:toastification/toastification.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/widgets/custom_bottom_nav_bar.dart';
+import '../../../core/widgets/app_loading.dart';
 import '../../../gen/locale_keys.g.dart';
 import '../../categories/presentation/categories_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
@@ -41,22 +42,34 @@ class _HomeScreenState extends State<HomeScreen> {
           const ProfileScreen(),
         ];
 
-        return BlocListener<CartCubit, CartState>(
-          listener: (context, state) {
-            if (state is CartUnauthorizedError) {
-              toastification.show(
-                context: context,
-                type: ToastificationType.error,
-                title: Text(LocaleKeys.session_expired.tr()),
-                autoCloseDuration: const Duration(seconds: 3),
-              );
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.login,
-                (route) => false,
-              );
-            }
-          },
+        return MultiBlocListener(
+          listeners: [
+            BlocListener<CartCubit, CartState>(
+              listener: (context, state) {
+                if (state is CartUnauthorizedError) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.error,
+                    title: Text(LocaleKeys.session_expired.tr()),
+                    autoCloseDuration: const Duration(seconds: 3),
+                  );
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    AppRoutes.login,
+                    (route) => false,
+                  );
+                } else if (state is CartItemUpdating || state is CartLoading) {
+                  AppLoading.show(context);
+                } else if (state is CartItemAdded ||
+                    state is CartItemRemoved ||
+                    state is CartLoaded ||
+                    state is CartError ||
+                    state is CartSuccess) {
+                  AppLoading.hide(context);
+                }
+              },
+            ),
+          ],
           child: PopScope(
             canPop: false,
             onPopInvoked: (didPop) {

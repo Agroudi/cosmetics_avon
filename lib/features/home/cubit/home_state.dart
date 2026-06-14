@@ -16,3 +16,5 @@ final class HomeError extends HomeState {
 }
 
 final class BottomNavChanged extends HomeState {}
+
+final class HomeSearchUpdated extends HomeState {}

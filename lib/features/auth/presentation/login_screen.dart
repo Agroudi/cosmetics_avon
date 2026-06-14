@@ -1,8 +1,10 @@
 import 'package:cosmetics_avon/core/theme/text_style.dart';
 import 'package:cosmetics_avon/features/auth/cubit/auth_cubit.dart';
+import 'package:cosmetics_avon/features/cart/cubit/cart_cubit.dart';
 import 'package:cosmetics_avon/features/auth/presentation/verification_screen.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_form_field.dart';
 import 'package:cosmetics_avon/features/auth/widgets/app_phone_field.dart';
+import 'package:cosmetics_avon/core/helpers/phone_validator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,80 +34,11 @@ class _LoginScreenState extends State<LoginScreen> {
   String countryCode = '+20';
   bool isFormValid = false;
 
-  String? validatePhone(String value, String countryCode) {
-    value = value.replaceAll(RegExp(r'\D'), '');
-
-    if (value.isEmpty) {
-      return LocaleKeys.empty_number.tr();
-    }
-
-    switch (countryCode) {
-      case '+20': // Egypt
-        if (value.length < 10) {
-          return LocaleKeys.short_egy_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_egy_number.tr();
-        }
-        break;
-
-      case '+966': // Saudi
-        if (value.length < 9) {
-          return LocaleKeys.short_ksa_number.tr();
-        }
-        if (value.length > 9) {
-          return LocaleKeys.long_ksa_number.tr();
-        }
-        break;
-
-      case '+971': // UAE
-        if (value.length < 9) {
-          return LocaleKeys.short_uae_number.tr();
-        }
-        if (value.length > 9) {
-          return LocaleKeys.long_uae_number.tr();
-        }
-        break;
-
-      case '+1': // USA
-        if (value.length < 10) {
-          return LocaleKeys.short_us_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_us_number.tr();
-        }
-        break;
-
-      case '+49': // Germany
-        if (value.length < 10) {
-          return LocaleKeys.short_german_number.tr();
-        }
-        if (value.length > 11) {
-          return LocaleKeys.long_german_number.tr();
-        }
-        break;
-
-      case '+98': // Iran
-        if (value.length < 10) {
-          return LocaleKeys.short_iran_number.tr();
-        }
-        if (value.length > 10) {
-          return LocaleKeys.long_iran_number.tr();
-        }
-        break;
-
-      default:
-        return LocaleKeys.unsupported_number.tr();
-    }
-
-    return null;
-  }
-
   void validateForm() {
     final phone = phoneController.text.trim();
     final password = passwordController.text.trim();
 
-    final isPhoneValid = validatePhone(phone, countryCode) == null;
+    final isPhoneValid = PhoneValidator.validate(phone, countryCode) == null;
     final isPasswordValid = password.length >= 8;
 
     setState(() {
@@ -134,6 +67,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       title: Text(LocaleKeys.toast_success_login.tr()),
                       autoCloseDuration: const Duration(seconds: 5),
                     );
+
+                    // The global CartCubit ran getCart() at app startup, before
+                    // this session had a valid token, so its result was empty.
+                    // Re-fetch now that we're authenticated so the cart (and the
+                    // stock checks that depend on it) reflect the real server state.
+                    context.read<CartCubit>().getCart(showLoading: false);
 
                     Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (route) => false);
                   }
@@ -210,10 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 validateForm();
                               },
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return LocaleKeys.empty_number.tr();
-                                }
-                                return validatePhone(value, countryCode);
+                                return PhoneValidator.validate(value, countryCode);
                               },
                             ),
                           SizedBox(height: 8.h),

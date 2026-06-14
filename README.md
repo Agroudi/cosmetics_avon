@@ -30,24 +30,24 @@ flutter run
 project_root/
 │
 ├── assets/
-│   ├── images/            # App images & product assets
-│   ├── icons/             # SVG icons
 │   ├── fonts/             # Custom fonts
+│   ├── icons/             # SVG icons
+│   ├── images/            # App images & product assets
 │   ├── lottie/            # Lottie animations
 │   └── translations/      # Localization files (AR / EN)
 │
 ├── lib/
 │   ├── core/
-│   │   ├── cubit/         # Global cubits
+│   │   ├── cubit/         # Global cubits (e.g. ThemeCubit)
 │   │   ├── helpers/       # Helper classes & utilities
-│   │   ├── routing/       # AppRouter & route management
-│   │   ├── theme/         # Colors, text styles
-│   │   ├── widgets/       # Global reusable widgets
-│   │   └── services/      # DioHelper & API config
+│   │   ├── routing/       # AppRouter & route definitions
+│   │   ├── services/      # DioHelper & API config
+│   │   ├── theme/         # Colors, text styles, app theme
+│   │   └── widgets/       # Global reusable widgets
 │   │
 │   ├── features/
 │   │   ├── auth/          # Authentication & user identity
-│   │   │   ├── cubit/     # AuthCubit logic
+│   │   │   ├── cubit/        # AuthCubit logic
 │   │   │   ├── data/
 │   │   │   │   ├── models/   # Data models
 │   │   │   │   ├── repo/     # AuthRepo & implementations
@@ -55,14 +55,9 @@ project_root/
 │   │   │   ├── presentation/ # Auth screens
 │   │   │   └── widgets/      # Auth-specific widgets
 │   │   │
-│   │   ├── home/          # Home screen content
-│   │   │   ├── cubit/
-│   │   │   ├── data/
-│   │   │   │   ├── models/
-│   │   │   │   ├── repo/
-│   │   │   │   └── services/
-│   │   │   ├── presentation/
-│   │   │   └── widgets/
+│   │   ├── boarding/      # Onboarding screens
+│   │   │   ├── model/
+│   │   │   └── presentation/
 │   │   │
 │   │   ├── cart/          # Cart system
 │   │   │   ├── cubit/
@@ -82,7 +77,14 @@ project_root/
 │   │   │   ├── presentation/
 │   │   │   └── widgets/
 │   │   │
-│   │   ├── profile/       # User profile & settings
+│   │   ├── checkout/      # Checkout, payment & order placement
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   └── services/
+│   │   │   └── presentation/
+│   │   │
+│   │   ├── home/          # Home screen content
 │   │   │   ├── cubit/
 │   │   │   ├── data/
 │   │   │   │   ├── models/
@@ -91,12 +93,34 @@ project_root/
 │   │   │   ├── presentation/
 │   │   │   └── widgets/
 │   │   │
+│   │   ├── orders/        # Order history
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   └── services/
+│   │   │   └── presentation/
+│   │   │
+│   │   ├── profile/       # User profile
+│   │   │   ├── cubit/
+│   │   │   ├── data/
+│   │   │   │   ├── models/
+│   │   │   │   ├── repo/
+│   │   │   │   └── services/
+│   │   │   ├── presentation/
+│   │   │   └── widgets/
+│   │   │
+│   │   ├── settings/      # App settings
+│   │   │   └── presentation/
+│   │   │
 │   │   ├── splash/        # Splash screen & initial logic
-│   │   ├── boarding/      # Onboarding screens
-│   │   └── checkout/      # Payment & order completion
+│   │   │   └── presentaion/
+│   │   │
+│   │   └── vouchers/      # Vouchers & discount codes
+│   │       └── presentation/
 │   │
-│   ├── cosmetics_app.dart # Main app widget
-│   └── main.dart          # App entry point
+│   ├── gen/               # Generated code (assets, fonts, locale keys)
+│   │
+│   ├── cosmetics_app.dart # Root app widget (MaterialApp & routing)
+│   └── main.dart          # App entry point (DI & bootstrapping)
 ```
 
 <h1>⚙️ Features</h1>

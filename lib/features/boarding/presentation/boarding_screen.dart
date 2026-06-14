@@ -73,7 +73,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
                 SizedBox(height: 67.h),
 
                 Text(
-                  boardingList[currentIndex].title,
+                  boardingList[currentIndex].title.tr(),
                   style: AppTextStyle.txtStyle.copyWith(
                     color: AppColors.Secondary,
                     fontWeight: FontWeight.w700,
@@ -86,7 +86,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    boardingList[currentIndex].description,
+                    boardingList[currentIndex].description.tr(),
                     textAlign: TextAlign.center,
                     style: AppTextStyle.txtStyle.copyWith(
                       color: AppColors.Secondary,

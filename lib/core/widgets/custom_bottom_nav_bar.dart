@@ -26,19 +26,21 @@ class CustomBottomNavBar extends StatelessWidget {
       Assets.icons.profile,
     ];
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: EdgeInsets.all(16.r),
       padding: EdgeInsets.symmetric(
         vertical: 18.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? DarkColors.cardBackground : Colors.white,
         borderRadius: BorderRadius.circular(100.r),
         boxShadow: [
           BoxShadow(
             blurRadius: 15,
             offset: const Offset(0, 4),
-            color: Colors.black.withOpacity(.08),
+            color: isDark ? Colors.black.withOpacity(.3) : Colors.black.withOpacity(.08),
           ),
         ],
       ),
@@ -48,17 +50,23 @@ class CustomBottomNavBar extends StatelessWidget {
 
         children: List.generate(
           icons.length,
-              (index) => GestureDetector(
+          (index) => InkWell(
             onTap: () => onTap(index),
-
-            child: SvgPicture.asset(
-              icons[index],
-
-              colorFilter: ColorFilter.mode(
-                currentIndex == index
-                    ? AppColors.Primary
-                    : AppColors.Disabled,
-                BlendMode.srcIn,
+            borderRadius: BorderRadius.circular(100.r),
+            splashColor: AppColors.Primary.withOpacity(0.15),
+            highlightColor: AppColors.Primary.withOpacity(0.05),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              child: SvgPicture.asset(
+                icons[index],
+                width: 24.w,
+                height: 24.h,
+                colorFilter: ColorFilter.mode(
+                  currentIndex == index
+                      ? AppColors.Primary
+                      : (isDark ? DarkColors.textSecondary : AppColors.Disabled),
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),

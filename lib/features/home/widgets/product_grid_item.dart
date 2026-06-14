@@ -18,17 +18,21 @@ class ProductGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isArabic = context.locale.languageCode == 'ar';
+    final name = isArabic ? product.nameAr : product.nameEn;
+
     return Container(
       width: 176.w,
       height: 273.h,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             blurRadius: 8,
             offset: const Offset(0, 3),
-            color: Colors.black.withOpacity(.08),
+            color: isDark ? Colors.black.withOpacity(.3) : Colors.black.withOpacity(.08),
           ),
         ],
       ),
@@ -46,7 +50,7 @@ class ProductGridItem extends StatelessWidget {
                   right: 8,
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
                   child: Image.network(
                     product.imageUrl,
                     height: 169.h,
@@ -103,7 +107,7 @@ class ProductGridItem extends StatelessWidget {
                         width: 32.w,
                         height: 32.h,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? DarkColors.surfaceBackground : Colors.white,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Center(
@@ -114,7 +118,10 @@ class ProductGridItem extends StatelessWidget {
                                     AppColors.Disabled,
                                     BlendMode.srcIn,
                                   )
-                                : null,
+                                : ColorFilter.mode(
+                                    AppColors.Primary,
+                                    BlendMode.srcIn,
+                                  ),
                           ),
                         ),
                       ),
@@ -131,11 +138,11 @@ class ProductGridItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.nameEn,
+                  name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyle.txtStyle.copyWith(
-                    color: AppColors.Secondary,
+                    color: isDark ? DarkColors.textPrimary : AppColors.Secondary,
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
                   ),
