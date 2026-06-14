@@ -1,15 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:toastification/toastification.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_style.dart';
 import '../../../../gen/locale_keys.g.dart';
 import '../../home/data/models/product_model.dart';
 import '../../home/widgets/product_grid_item.dart';
-import '../../cart/cubit/cart_cubit.dart';
-import '../../../../core/widgets/app_loading.dart';
 
 class CategoryProductsScreen extends StatelessWidget {
   final int categoryId;
@@ -30,35 +26,11 @@ class CategoryProductsScreen extends StatelessWidget {
     // Filter products locally by categoryId
     final filtered = products.where((p) => p.categoryId == categoryId).toList();
 
-    return BlocListener<CartCubit, CartState>(
-      listener: (context, state) {
-        if (state is CartItemUpdating) {
-          AppLoading.show(context);
-        } else if (state is CartItemAdded ||
-            state is CartItemRemoved ||
-            state is CartLoaded ||
-            state is CartError ||
-            state is CartSuccess) {
-          AppLoading.hide(context);
-        }
-
-        if (state is CartItemAdded) {
-          toastification.show(
-            context: context,
-            type: ToastificationType.success,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: Text(LocaleKeys.added_to_cart_success.tr()),
-          );
-        } else if (state is CartError) {
-          toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: Text(state.message),
-          );
-        }
-      },
-      child: Scaffold(
+    // Cart state (loading overlay + add/error toasts) is handled globally by
+    // the always-mounted HomeScreen/HomeBody listeners. Adding a listener here
+    // too would fire those toasts twice for a single add, so this screen just
+    // renders the product grid.
+    return Scaffold(
         appBar: AppBar(
         title: Text(
           categoryTitle,
@@ -117,7 +89,6 @@ class CategoryProductsScreen extends StatelessWidget {
                 ),
               ),
       ),
-    ),
     );
   }
 }
