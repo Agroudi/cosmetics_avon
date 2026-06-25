@@ -1,3 +1,11 @@
+<h1>🎥 App Demo</h1>
+
+https://github.com/user-attachments/assets/efec6121-4540-4de2-a4a7-915e441bc04f
+
+<p align="center">
+Watch the latest application demo showcasing the current progress, user flow, authentication system, localization, and UI implementation.
+</p>
+
 <h1>📱 Cosmetics Avon App</h1>
 
 A modern, scalable cosmetics e-commerce mobile application built with Flutter, delivering a seamless shopping experience with a pixel-perfect UI based on Figma designs.
