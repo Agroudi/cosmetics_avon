@@ -6,6 +6,7 @@ import 'package:toastification/toastification.dart';
 
 import '../../../../core/theme/text_style.dart';
 import '../../../core/widgets/app_loading.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../../../core/widgets/home_search_bar.dart';
 import '../../../gen/locale_keys.g.dart';
 import '../../cart/cubit/cart_cubit.dart';
@@ -38,37 +39,25 @@ class HomeBody extends StatelessWidget {
         BlocListener<CartCubit, CartState>(
           listener: (context, state) {
             if (state is CartItemAdded) {
-              toastification.show(
-                context: context,
-
+              AppToast.show(
+                context,
                 type: ToastificationType.success,
-
-                autoCloseDuration: const Duration(seconds: 3),
-
                 title: Text(LocaleKeys.added_to_cart_success.tr()),
               );
             }
 
             if (state is CartInfoState) {
-              toastification.show(
-                context: context,
-
+              AppToast.show(
+                context,
                 type: ToastificationType.info,
-
-                autoCloseDuration: const Duration(seconds: 3),
-
                 title: Text(state.message),
               );
             }
 
             if (state is CartError) {
-              toastification.show(
-                context: context,
-
+              AppToast.show(
+                context,
                 type: ToastificationType.error,
-
-                autoCloseDuration: const Duration(seconds: 3),
-
                 title: Text(state.message),
               );
             }

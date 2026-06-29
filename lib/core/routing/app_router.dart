@@ -13,6 +13,7 @@ import '../../features/home/data/repo/home_repo_impl.dart';
 import '../../features/home/data/services/home_api_service.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/home/data/models/product_model.dart';
+import '../../features/home/presentation/product_details_screen.dart';
 import '../../features/categories/presentation/category_products_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/orders/presentation/order_history_screen.dart';
@@ -84,6 +85,32 @@ class AppRouter {
             categoryTitle: args['categoryTitle'] as String,
             products: args['products'] as List<ProductModel>,
           ),
+        );
+
+      case AppRoutes.productDetails:
+        final product = settings.arguments as ProductModel;
+        return PageRouteBuilder(
+          settings: settings,
+          transitionDuration: const Duration(milliseconds: 350),
+          reverseTransitionDuration: const Duration(milliseconds: 300),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              ProductDetailsScreen(product: product),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final curved = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            );
+            return FadeTransition(
+              opacity: curved,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.04),
+                  end: Offset.zero,
+                ).animate(curved),
+                child: child,
+              ),
+            );
+          },
         );
 
       case AppRoutes.settings:

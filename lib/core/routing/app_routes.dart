@@ -9,6 +9,7 @@ class AppRoutes {
   static const createPassword = '/create-password';
   static const checkout = '/checkout';
   static const categoryProducts = '/category-products';
+  static const productDetails = '/product-details';
   static const settings = '/settings';
   static const orderHistory = '/order-history';
   static const vouchers = '/vouchers';

@@ -191,6 +191,18 @@
 
   "category_products": "Products",
 
+  "product_details_title": "Product Details",
+  "product_description": "Description",
+  "no_description": "No description available for this product.",
+  "product_category": "Category",
+  "add_to_cart": "Add to Cart",
+  "cart_updated": "Cart updated",
+  "in_stock": "In Stock",
+  "out_of_stock": "Out of Stock",
+  "remove_item_title": "Remove Item",
+  "remove_item_desc": "Are you sure you want to remove this item from your cart?",
+  "remove": "Remove",
+
   "checkout_title": "Checkout",
   "delivery_to": "Delivery to",
   "address_label": "Address Label",

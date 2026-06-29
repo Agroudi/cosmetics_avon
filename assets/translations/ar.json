@@ -191,6 +191,18 @@
 
   "category_products": "المنتجات",
 
+  "product_details_title": "تفاصيل المنتج",
+  "product_description": "الوصف",
+  "no_description": "لا يوجد وصف متاح لهذا المنتج.",
+  "product_category": "الفئة",
+  "add_to_cart": "أضف إلى العربة",
+  "cart_updated": "تم تحديث العربة",
+  "in_stock": "متوفر",
+  "out_of_stock": "غير متوفر",
+  "remove_item_title": "إزالة المنتج",
+  "remove_item_desc": "هل أنت متأكد أنك تريد إزالة هذا المنتج من عربتك؟",
+  "remove": "إزالة",
+
   "checkout_title": "إتمام الشراء",
   "delivery_to": "التوصيل إلى",
   "address_label": "تسمية العنوان",

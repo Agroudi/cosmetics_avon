@@ -398,6 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Assets.icons.goto,
                 width: 12.w,
                 height: 12.h,
+                matchTextDirection: true,
                 colorFilter: ColorFilter.mode(
                   isDark ? DarkColors.textSecondary : AppColors.Secondary,
                   BlendMode.srcIn,

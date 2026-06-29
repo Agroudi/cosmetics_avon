@@ -5,11 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:toastification/toastification.dart';
 import '../../cart/cubit/cart_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/theme/colors.dart';
 import '../../../../core/theme/text_style.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../gen/locale_keys.g.dart';
 import '../data/models/product_model.dart';
+import '../presentation/product_details_screen.dart';
 
 class ProductGridItem extends StatelessWidget {
   final ProductModel product;
@@ -22,7 +25,16 @@ class ProductGridItem extends StatelessWidget {
     final isArabic = context.locale.languageCode == 'ar';
     final name = isArabic ? product.nameAr : product.nameEn;
 
-    return Container(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.productDetails,
+          arguments: product,
+        );
+      },
+      child: Container(
       width: 176.w,
       height: 273.h,
       decoration: BoxDecoration(
@@ -49,13 +61,16 @@ class ProductGridItem extends StatelessWidget {
                   left: 8,
                   right: 8,
                 ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(4)),
-                  child: Image.network(
-                    product.imageUrl,
-                    height: 169.h,
-                    width: 181.w,
-                    fit: BoxFit.cover,
+                child: Hero(
+                  tag: productHeroTag(product.id),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                    child: Image.network(
+                      product.imageUrl,
+                      height: 169.h,
+                      width: 181.w,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -78,8 +93,8 @@ class ProductGridItem extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () {
                         if (isOutOfStock) {
-                          toastification.show(
-                            context: context,
+                          AppToast.show(
+                            context,
                             type: ToastificationType.info,
                             title: Text(LocaleKeys.out_of_stock_toast.tr()),
                             autoCloseDuration: const Duration(seconds: 5),
@@ -93,8 +108,8 @@ class ProductGridItem extends StatelessWidget {
 
                         final left = product.stock - (currentQuantity + 1);
                         if (left == 1 || left == 2) {
-                          toastification.show(
-                            context: context,
+                          AppToast.show(
+                            context,
                             type: ToastificationType.info,
                             title: Text(
                               LocaleKeys.low_stock_toast.tr(args: [left.toString()]),
@@ -162,6 +177,7 @@ class ProductGridItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

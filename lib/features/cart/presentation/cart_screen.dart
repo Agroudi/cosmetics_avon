@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:toastification/toastification.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_style.dart';
 import '../../../gen/assets.gen.dart';
@@ -23,11 +24,10 @@ class CartScreen extends StatelessWidget {
     return BlocConsumer<CartCubit, CartState>(
       listener: (context, state) {
         if (state is CartItemRemoved) {
-          toastification.show(
-            context: context,
+          AppToast.show(
+            context,
             type: ToastificationType.success,
             title: Text(LocaleKeys.cart_item_removed.tr()),
-            autoCloseDuration: const Duration(seconds: 3),
           );
         }
       },
@@ -64,11 +64,10 @@ class CartScreen extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             if (cubit.cartItems.isEmpty) {
-                              toastification.show(
-                                context: context,
+                              AppToast.show(
+                                context,
                                 type: ToastificationType.info,
                                 title: Text(LocaleKeys.empty_cart_msg.tr()),
-                                autoCloseDuration: const Duration(seconds: 3),
                               );
                               return;
                             }
@@ -149,8 +148,8 @@ class CartScreen extends StatelessWidget {
                               },
                               onPlus: () {
                                 if (isMaxStock) {
-                                  toastification.show(
-                                    context: context,
+                                  AppToast.show(
+                                    context,
                                     type: ToastificationType.info,
                                     title: Text(
                                       LocaleKeys.out_of_stock_toast.tr(),
@@ -163,8 +162,8 @@ class CartScreen extends StatelessWidget {
                                   cubit.increaseQuantity(item);
                                   final left = stock - (item.quantity + 1);
                                   if (left == 1 || left == 2) {
-                                    toastification.show(
-                                      context: context,
+                                    AppToast.show(
+                                      context,
                                       type: ToastificationType.info,
                                       title: Text(
                                         LocaleKeys.low_stock_toast.tr(args: [left.toString()]),
